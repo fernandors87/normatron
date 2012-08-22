@@ -28,7 +28,7 @@ module Normatron
         elsif options.has_key? :with
           methods << options[:with]
         else
-          raise "Wrong normalization option for #{attribute}, use :with instead."
+          raise "Wrong normalization option in #{self.name}, use :with instead."
         end
 
         # Make a prettier array
@@ -44,6 +44,7 @@ module Normatron
 
     def normalize_attributes
       options = self.class.standardize_options
+      return unless options
 
       options.each do |attribute, methods|
         value = send("#{attribute}_before_type_cast")  || send(attribute)

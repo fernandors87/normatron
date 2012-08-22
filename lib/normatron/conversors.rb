@@ -5,7 +5,7 @@ module Normatron
   module Conversors
 
     @@MB_CHARS_METHODS = [:upcase, :downcase, :capitalize, :lstrip, :rstrip, :strip, :titlecase, :titleize]
-    @@SELF_METHODS = [:nillify, :nullify, :nil, :trim, :currency, :integer, :float, :postal_code, :phone, :digits, :phrase]
+    @@SELF_METHODS = [:nillify, :nullify, :nil, :squish, :currency, :integer, :float, :postal_code, :phone, :digits, :phrase]
 
     def convert(method, value)
       if @@MB_CHARS_METHODS.include? method
@@ -27,7 +27,7 @@ module Normatron
     alias :convert_nullify  :convert_nillify
 
     # Remove repeated spaces from the string.
-    def convert_trim(value)
+    def convert_squish(value)
       value.mb_chars.to_s.gsub(/\p{Zs}+/u, ' ')
     end
 
@@ -85,7 +85,7 @@ module Normatron
     end
 
     def convert_phrase(value)
-      convert(:trim, convert(:strip, value))
+      convert(:squish, convert(:strip, value))
     end
   end
 end

@@ -4,7 +4,15 @@ require "spec_helper"
 
 describe Normatron do
   before :each do
-    TestModel.standardize_options = {}
+    TestModel.standardize_options = nil
+  end
+
+  it "should save without any normalize options" do
+    lambda do
+      a = TestModel.new
+      a.string_field = "a"
+      a.save!
+    end.should_not raise_error
   end
 
   describe "Conversors" do
@@ -62,6 +70,13 @@ describe Normatron do
       m.string_field.should == "8888888"
     end
 
+    it :squish do
+      TestModel.normalize :string_field, :with => :squish
+
+      m = TestModel.create :string_field => "   a   b c, 1 2 3 DEF GHI i oz    "
+      m.string_field.should == " a b c, 1 2 3 DEF GHI i oz "
+    end
+
     it :strip do
       TestModel.normalize :string_field, :with => :strip
 
@@ -83,20 +98,11 @@ describe Normatron do
       m.string_field.should == "   A   B C, 1 2 3 DEF GHI I OZ    "
     end
 
-
-
     it :nillify do
       TestModel.normalize :string_field, :with => :nillify
 
       m = TestModel.create :string_field => "       "
       m.string_field.should == nil
-    end
-
-    it :trim do
-      TestModel.normalize :string_field, :with => :trim
-
-      m = TestModel.create :string_field => "   a   b c, 1 2 3 DEF GHI i oz    "
-      m.string_field.should == " a b c, 1 2 3 DEF GHI i oz "
     end
 
     it :lstrip do
