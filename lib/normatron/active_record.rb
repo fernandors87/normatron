@@ -2,7 +2,6 @@ require "active_record"
 
 module Normatron
   module ActiveRecord
-    include Conversors
 
     def self.included(base)
       base.instance_eval do
@@ -11,39 +10,63 @@ module Normatron
         before_validation :normalize_attributes
 
         class << self
-          attr_accessor :standardize_options
+          attr_accessor :normalization_options
         end
       end
     end
 
     module ClassMethods
+      # Set an attribute normalization before model validation.
+      # Args uses the attribute names following by a hash with conversion options.
+      #
+      # Example 1:
+      # normalize :attribute_name
+      # 
+      # Example 2:
+      # normalize :attribute_name, :with => :upcase
+      #
+      # Example 3:
+      # normalize :attribute_name, :with => [:squish, :downcase]
       def normalize(*args)
         # Extract options
-        self.standardize_options ||= {}
+        @normalization_options ||= {}
         options = args.extract_options!
 
-        methods = []
+        # Set conversors
+        conversors = []
         if options.empty? # Default standardization
-          methods << [:trim, :strip, :nillify]
+          conversors << [:squish, :strip, :nillify]
         elsif options.has_key? :with
-          methods << options[:with]
+          conversors << options[:with]
         else
-          raise "Wrong normalization option in #{self.name}, use :with instead."
+          raise "Wrong normalization key in #{self.name}, use :with instead of #{options.keys.first}"
         end
 
         # Make a prettier array
-        methods = methods.flatten.compact
-        methods.map! { |v| v = v.to_sym }
+        conversors = conversors.flatten.compact
+        conversors.map! { |v| v = v.to_sym }
 
-        # Add normalization methods to call
+        # Check conversors
+        conversors.each do |c|
+          unless Conversors::CALLBACKS.include? c
+            raise "Normalization callback '#{c}' doesn't exist"
+          end
+        end
+
+        # Add normalization conversors
         args.each do |attribute|
-          standardize_options[attribute] = methods
+          # Check attributes
+          unless self.column_names.include? attribute.to_s
+            raise "Attribute '#{attribute}' doesn't exist in #{self.name}"
+          end
+
+          @normalization_options[attribute] = conversors
         end
       end
     end
 
     def normalize_attributes
-      options = self.class.standardize_options
+      options = self.class.normalization_options
       return unless options
 
       options.each do |attribute, methods|
@@ -51,7 +74,8 @@ module Normatron
 
         methods.each do |method|
           # Skip if value is nil originally or the method 'nullify' was called before
-          value = convert(method, value) unless value.nil?
+          value = Conversors.convert(method, value) unless value.nil?
+
           if value == :no_method
             raise ArgumentError, "Method :#{method} cannot be resolved.
              Check options for #{attribute} in #{klass}", caller

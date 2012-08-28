@@ -1,3 +1,31 @@
 = Normatron
 
-This project rocks and uses MIT-LICENSE.
+Normatron is a attribute normalizer for ActiveRecord.
+
+= Installation
+
+Add the following into your gemfile:
+
+  gem 'normatron'
+
+Bundle it up:
+  
+  $ bundle install
+
+= Usage
+
+Let's take an example model:
+
+app/models/product.rb
+  class Product < ActiveRecord::Base
+    attr_accessible :name
+
+    normalize :name, :with => :upcase
+  end
+
+$rails console
+  > p = Product.new
+  > p.name = "  memory   card    "
+  > p.valid?
+  > p.name
+  => "  MEMORY   CARD    "

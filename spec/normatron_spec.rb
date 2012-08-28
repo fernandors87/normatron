@@ -45,8 +45,8 @@ describe Normatron do
     it :capitalize do
       TestModel.normalize :string_column, :with => :capitalize
 
-      m = TestModel.create :string_column => "áb c, 1 2 3 DEF GHI i oz    "
-      m.string_column.should == "Áb c, 1 2 3 def ghi i oz    "
+      m = TestModel.create :string_column => "áb c, 1 2 3 DEF GHI i oz "
+      m.string_column.should == "Áb c, 1 2 3 def ghi i oz "
     end
 
     it :digits do
@@ -59,8 +59,8 @@ describe Normatron do
     it :downcase do
       TestModel.normalize :string_column, :with => :downcase
 
-      m = TestModel.create :string_column => "   a   b c, 1 2 3 DEF GHI i oz    "
-      m.string_column.should == "   a   b c, 1 2 3 def ghi i oz    "
+      m = TestModel.create :string_column => " a b c, 1 2 3 DEF GHI i oz "
+      m.string_column.should == " a b c, 1 2 3 def ghi i oz "
     end
 
     it :phone do
@@ -79,7 +79,7 @@ describe Normatron do
     it :phrase do
       TestModel.normalize :string_column, :with => :phrase
 
-      m = TestModel.create :string_column => "   a   b c, 1 2 3 DEF GHI i oz    "
+      m = TestModel.create :string_column => " a b c, 1 2 3 DEF GHI i oz "
       m.string_column.should == "a b c, 1 2 3 DEF GHI i oz"
     end
 
@@ -99,50 +99,50 @@ describe Normatron do
     it :squish do
       TestModel.normalize :string_column, :with => :squish
 
-      m = TestModel.create :string_column => "   a   b c, 1 2 3 DEF GHI i oz    "
+      m = TestModel.create :string_column => " a b c, 1 2 3 DEF GHI i oz "
       m.string_column.should == " a b c, 1 2 3 DEF GHI i oz "
     end
 
     it :strip do
       TestModel.normalize :string_column, :with => :strip
 
-      m = TestModel.create :string_column => "   a   b c, 1 2 3 DEF GHI i oz    "
-      m.string_column.should == "a   b c, 1 2 3 DEF GHI i oz"
+      m = TestModel.create :string_column => " a b c, 1 2 3 DEF GHI i oz "
+      m.string_column.should == "a b c, 1 2 3 DEF GHI i oz"
     end
 
     it :titlecase do
       TestModel.normalize :string_column, :with => :titlecase
 
-      m = TestModel.create :string_column => "   aé   áb c, 1 2 3 DEF GHI i oz    "
-      m.string_column.should == "   Aé   Áb C, 1 2 3 Def Ghi I Oz    "
+      m = TestModel.create :string_column => " aé áb c, 1 2 3 DEF GHI i oz "
+      m.string_column.should == " Aé Áb C, 1 2 3 Def Ghi I Oz "
     end
 
     it :upcase do
       TestModel.normalize :string_column, :with => :upcase
 
-      m = TestModel.create :string_column => "   a   b c, 1 2 3 DEF GHI i oz    "
-      m.string_column.should == "   A   B C, 1 2 3 DEF GHI I OZ    "
+      m = TestModel.create :string_column => " a b c, 1 2 3 DEF GHI i oz "
+      m.string_column.should == " A B C, 1 2 3 DEF GHI I OZ "
     end
 
     it :nillify do
       TestModel.normalize :string_column, :with => :nillify
 
-      m = TestModel.create :string_column => "       "
+      m = TestModel.create :string_column => " "
       m.string_column.should == nil
     end
 
     it :lstrip do
       TestModel.normalize :string_column, :with => :lstrip
 
-      m = TestModel.create :string_column => "   a   b c, 1 2 3 DEF GHI i oz    "
-      m.string_column.should == "a   b c, 1 2 3 DEF GHI i oz    "
+      m = TestModel.create :string_column => " a b c, 1 2 3 DEF GHI i oz "
+      m.string_column.should == "a b c, 1 2 3 DEF GHI i oz "
     end
 
     it :rstrip do
       TestModel.normalize :string_column, :with => :rstrip
 
-      m = TestModel.create :string_column => "   a   b c, 1 2 3 DEF GHI i oz    "
-      m.string_column.should == "   a   b c, 1 2 3 DEF GHI i oz"
+      m = TestModel.create :string_column => " a b c, 1 2 3 DEF GHI i oz "
+      m.string_column.should == " a b c, 1 2 3 DEF GHI i oz"
     end
   end
 end
