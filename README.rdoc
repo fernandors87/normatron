@@ -1,31 +1,231 @@
 = Normatron
 
 Normatron is a attribute normalizer for ActiveRecord.
+With it you can convert attributes to the desired format before saving them in the database.
+This gem inhibits the work of having to override attributes or create a specific method to perform the normalization.
 
 = Installation
 
-Add the following into your gemfile:
+Let the bundler install the gem by adding the following into your application gemfile:
 
   gem 'normatron'
 
-Bundle it up:
+And then bundle it up:
   
   $ bundle install
 
+Or install it by yourself:
+
+  $ gem install normatron
+
+= The problem
+
+I have a product model as the following:
+
+  # ./db/migrate/20120101010000_create_products.rb
+
+  class CreateProducts < ActiveRecord::Migration
+    def change
+      create_table :products do |t|
+        t.string  :name
+        t.decimal :price, :precision => 10, :scale => 2
+      end
+    end
+  end
+
+  # ./app/models/products.rb
+
+  class Product < ActiveRecord::Base
+    attr_accessible :name, :price
+  end
+
+And I want the product name to be uppercased before save.
+I can do it basically by two ways:
+
+== a. Overriding the 'name' method
+
+  # ./app/models/products.rb
+
+  class Product < ActiveRecord::Base
+    attr_accessible :name, :price
+
+    def name=(value)
+      super value.mb_chars.upcase
+    end
+  end
+
+== b. Using the before_validation callback
+
+  # ./app/models/products.rb
+
+  class Product < ActiveRecord::Base
+    attr_accessible :name, :price
+
+    before_validation :do_upcase
+
+    def do_upcase
+      write_attribute :name, name.mb_chars.upcase
+    end
+  end
+
+Both ways are ilenegant, boring, error prone and expensive.
+Which led me to use a third method:
+
 = Usage
 
-Let's take an example model:
+  # ./app/models/products.rb
 
-app/models/product.rb
   class Product < ActiveRecord::Base
+    attr_accessible :name, :price
+
+    normalize :name, :with => :upcase
+  end
+
+  $ rails console
+  > p = Product.create :name => "  memory   card    "
+  > p.name
+  => "  MEMORY   CARD    "
+
+You can assign multiple attributes to the same filter:
+
+  # ./app/models/products.rb
+
+  class Product < ActiveRecord::Base
+    attr_accessible :name, :description, :brand, :price
+
+    normalize :name, :brand, :with => :capitalize
+  end
+
+  $ rails console
+  > p = Product.create :name => "memory   card    4  GB    ", :brand => "OEM"
+  > p.name
+  => "Memory   card    4  GB    "
+  > p.brand
+  => "Oem"
+
+And/or assign multiple filters to multiple attributes:
+
+  # ./app/models/products.rb
+
+  class Product < ActiveRecord::Base
+    attr_accessible :name, :description, :brand, :price
+
+    normalize :name, :description, :brand, :with => [:upcase, :squish, :nillify]
+  end
+
+  $ rails console
+  > p = Product.create :name => "   memory   card    4  GB    ", :description => "         ", :brand => "oem   "
+  > p.name
+  => "MEMORY CARD 4 GB"
+  > p.brand
+  => "OEM"
+  > p.description
+  => nil
+
+= Filters
+== :upcase and :downcase
+Change all character to upcase and downcase, respectively.
+Accented characters are affected too.
+
+  class User < ActiveRecord::Base
     attr_accessible :name
 
     normalize :name, :with => :upcase
   end
 
-$rails console
-  > p = Product.new
-  > p.name = "  memory   card    "
-  > p.valid?
+  $ rails console
+  > d = User.create :name => "Darth Vader"
+  > d.name
+  => "DARTH VADER"
+  > j = User.create :name => " José    Negrão  "
+  > j.name
+  => " JOSÉ    NEGRÃO  "
+
+== :capitalize
+Capitalize the first character of the sequence.
+Accented characters are affected too.
+
+  class Player < ActiveRecord::Base
+    attr_accessible :name, :race
+
+    normalize :name, :race, :with => :capitalize
+  end
+
+  $ rails console
+  > a = Player.create :name => "ÉBANO PEREIRA", :race => " protoss"
+  > a.name
+  => "Ébano pereira"
+  > a.race
+  => " protoss"
+
+== :titlecase or :titleize
+Capitalize the first character of each word.
+Accented characters are affected too.
+
+  class Player < ActiveRecord::Base
+    attr_accessible :name, :race
+
+    normalize :name, :race, :with => :titleize
+  end
+
+  $ rails console
+  > a = Player.create :name => "fernando rodrigues", :race => " zerg"
+  > a.name
+  => "Fernando Rodrigues"
+  > a.race
+  => " Zerg"
+
+== :strip, :lstrip and :rstrip
+Remove trailing and/or leading spaces.
+
+  class Address < ActiveRecord::Base
+    attr_accessible :city, :district, :street
+
+    normalize :city, :with => :strip
+    normalize :district, :with => :lstrip
+    normalize :street, :with => :rstrip
+  end
+
+  $ rails console
+  > a = Address.create :city => " gotham ", :district => " red light ", :street => " no name "
+  > a.city
+  => "gotham"
+  > a.district
+  => "red light "
+  > a.street
+  => " no name"
+
+== :squish
+Remove trailing and leading spaces and then changing remaining consecutive whitespace groups into one space each.
+
+  class Product < ActiveRecord::Base
+    attr_accessible :description
+
+    normalize :description, :with => :squish
+  end
+
+  $ rails console
+  > p = Product.create :description => "   \t My   product is \n cheap!  !    !     "
+  > p.description
+  => "My product is cheap!!!"
+
+== :nillify, :nullify or :nil
+Convert a blank attribute into nil.
+
+  class Person < ActiveRecord::Base
+    attr_accessible :gender, :name
+
+    normalize :gender, :with => :nil
+  end
+
+  $ rails console
+  > p = Person.create :gender => "     ", :name => "  "
+  > p.gender
+  => nil
   > p.name
-  => "  MEMORY   CARD    "
+  => "  "
+
+= Special Thanks
+This gem was inspired on work of {fnando}[https://github.com/fnando] called {normalize_attributes}[https://github.com/fnando/normalize_attributes].
+I just forked his gem and added some functionalities.
+He has a lot of interesting gems on his repo, please take a look.

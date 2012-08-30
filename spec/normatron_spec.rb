@@ -5,35 +5,21 @@ require "spec_helper"
 describe Normatron do
   before :each do
     TestModel.normalization_options = nil
-    @instance = TestModel.new
   end
 
-  it "should allow save without any normalize option" do
+  it "should respond to aliases" do
+    TestModel.should respond_to :normatron
+  end
+
+  it "should save without normalization option" do
     lambda do
-      @instance.string_column = "Any string"
-      @instance.save!
+      instance = TestModel.new
+      instance.string_column = "Any string"
+      instance.save!
     end.should_not raise_error
   end
 
-  it "should raise an error if attribute doesn't exist" do
-    lambda do
-      TestModel.normalize :ghost_attribute
-    end.should raise_error "Attribute 'ghost_attribute' doesn't exist in TestModel"
-  end
-
-  it "should raise an error if a wrong option is set" do
-    lambda do
-      TestModel.normalize :string_column, :wrong_option => :upcase
-    end.should raise_error "Wrong normalization key in TestModel, use :with instead of wrong_option"
-  end
-
-  it "should raise an error if wrong conversor is called" do
-    lambda do
-      TestModel.normalize :string_column, :with => :wrong_conversor
-    end.should raise_error "Normalization callback 'wrong_conversor' doesn't exist"
-  end
-
-  it "options should be accessible" do
+  it "filters should be accessible" do
     TestModel.normalize :string_column, :with => [:capitalize, :upcase]
     TestModel.normalize :integer_column, :with => :integer
     TestModel.normalization_options.should == { :string_column => [:capitalize, :upcase], :integer_column => [:integer] }
@@ -41,108 +27,60 @@ describe Normatron do
     TestModel.normalization_options.should == { :integer_column => [:integer] }
   end
 
-  describe "Conversors" do
-    it :capitalize do
-      TestModel.normalize :string_column, :with => :capitalize
+  it "should apply single filter" do
+    TestModel.normalize :string_column, :with => :upcase
 
-      m = TestModel.create :string_column => "áb c, 1 2 3 DEF GHI i oz "
-      m.string_column.should == "Áb c, 1 2 3 def ghi i oz "
-    end
+    m = TestModel.create :string_column => "master of puppets"
+    m.string_column.should == "MASTER OF PUPPETS"
+  end
 
-    it :digits do
-      TestModel.normalize :string_column, :with => :digits
+  it "should apply multiple filters" do
+    TestModel.normalize :string_column, :with => [:downcase, :squish, :nil]
 
-      m = TestModel.create :string_column => " 1a 2b 3c 4d 5e 6f "
-      m.string_column.should == "123456"
-    end
+    m = TestModel.create :string_column => "     YOU   SHALL    NOT   PASS    "
+    m.string_column.should == "you shall not pass"
 
-    it :downcase do
-      TestModel.normalize :string_column, :with => :downcase
+    m = TestModel.create :string_column => "     "
+    m.string_column.should == nil
+  end
 
-      m = TestModel.create :string_column => " a b c, 1 2 3 DEF GHI i oz "
-      m.string_column.should == " a b c, 1 2 3 def ghi i oz "
-    end
+  it "should stack filters for the same attribute" do
+    TestModel.normalize :string_column, :with => [:upcase, :squish]
+    TestModel.normalize :string_column, :with => :nil
+    TestModel.normalization_options.should == { :string_column => [:upcase, :squish, :nil] }
+  end
 
-    it :phone do
-      TestModel.normalize :string_column, :with => :phone
+  it "default filters should be :squish and :nillify" do
+    TestModel.normalize :string_column
+    TestModel.normalization_options.should == { :string_column => [:squish, :nillify] }
+  end
 
-      m = TestModel.create :string_column => "(99) 9999-9999"
-      m.string_column.should == "(99) 9999-9999"
+   it "default filters should be :squish and :nillify" do
+    TestModel.normalize :string_column
+    TestModel.normalization_options.should == { :string_column => [:squish, :nillify] }
+  end
 
-      m = TestModel.create :string_column => "9999999999"
-      m.string_column.should == "(99) 9999-9999"
+  it "should filter multiple attributes" do
+    TestModel.normalize :string_column, :integer_column, :with => :nil
 
-      m = TestModel.create :string_column => "999999999"
-      m.string_column.should == "999999999"
-    end
+    m = TestModel.create :string_column => "      ", :integer_column => "      "
+    m.string_column.should == nil
+    m.integer_column.should == nil
+  end
 
-    it :phrase do
-      TestModel.normalize :string_column, :with => :phrase
+  it "should raise error if a wrong option is set and the right isn't" do
+    lambda do
+      TestModel.normalize :string_column, :wrong_option => :upcase
+    end.should raise_error "Wrong normalization key in TestModel, use :with instead of wrong_option"
 
-      m = TestModel.create :string_column => " a b c, 1 2 3 DEF GHI i oz "
-      m.string_column.should == "a b c, 1 2 3 DEF GHI i oz"
-    end
+    lambda do
+      TestModel.normalize :string_column, :wrong_option => :upcase, :with => :downcase
+    end.should_not raise_error
+  end
 
-    it :postal_code do
-      TestModel.normalize :string_column, :with => :postal_code
-
-      m = TestModel.create :string_column => "88888-888"
-      m.string_column.should == "88888-888"
-
-      m = TestModel.create :string_column => "88888888"
-      m.string_column.should == "88888-888"
-
-      m = TestModel.create :string_column => "8888888"
-      m.string_column.should == "8888888"
-    end
-
-    it :squish do
-      TestModel.normalize :string_column, :with => :squish
-
-      m = TestModel.create :string_column => " a b c, 1 2 3 DEF GHI i oz "
-      m.string_column.should == " a b c, 1 2 3 DEF GHI i oz "
-    end
-
-    it :strip do
-      TestModel.normalize :string_column, :with => :strip
-
-      m = TestModel.create :string_column => " a b c, 1 2 3 DEF GHI i oz "
-      m.string_column.should == "a b c, 1 2 3 DEF GHI i oz"
-    end
-
-    it :titlecase do
-      TestModel.normalize :string_column, :with => :titlecase
-
-      m = TestModel.create :string_column => " aé áb c, 1 2 3 DEF GHI i oz "
-      m.string_column.should == " Aé Áb C, 1 2 3 Def Ghi I Oz "
-    end
-
-    it :upcase do
-      TestModel.normalize :string_column, :with => :upcase
-
-      m = TestModel.create :string_column => " a b c, 1 2 3 DEF GHI i oz "
-      m.string_column.should == " A B C, 1 2 3 DEF GHI I OZ "
-    end
-
-    it :nillify do
-      TestModel.normalize :string_column, :with => :nillify
-
-      m = TestModel.create :string_column => " "
-      m.string_column.should == nil
-    end
-
-    it :lstrip do
-      TestModel.normalize :string_column, :with => :lstrip
-
-      m = TestModel.create :string_column => " a b c, 1 2 3 DEF GHI i oz "
-      m.string_column.should == "a b c, 1 2 3 DEF GHI i oz "
-    end
-
-    it :rstrip do
-      TestModel.normalize :string_column, :with => :rstrip
-
-      m = TestModel.create :string_column => " a b c, 1 2 3 DEF GHI i oz "
-      m.string_column.should == " a b c, 1 2 3 DEF GHI i oz"
-    end
+  it "should raise error if wrong filter is called" do
+    lambda do
+      TestModel.normalize :string_column, :with => :wrong_filter
+    end.should raise_error "Normalization filter 'wrong_filter' doesn't exist"
   end
 end
