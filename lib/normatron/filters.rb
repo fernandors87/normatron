@@ -1,42 +1,33 @@
-require "i18n"
 require "active_support/all"
 
 module Normatron
   module Filters
+    class << self
+      def apply(filter, value)
+        return value unless value.is_a? String
 
-    private
+        case filter
+        when :upcase, :downcase, :capitalize, :titlecase, :titleize
+          value.mb_chars.send(filter).to_s
+        when :squish, :lstrip, :rstrip, :strip
+          value.send(filter)
+        when :blank
+          send("to_#{filter}", value)
+        end
+      end
 
-    MB_CHARS_METHODS = [:upcase, :downcase, :capitalize, :lstrip, :rstrip, :strip, :titlecase, :titleize]
-    SELF_METHODS = [:nillify, :nullify, :nil, :squish, :currency, :integer, :float]
+      def filter_names
+        [:upcase, :downcase, :capitalize, :titlecase, :titleize, :squish, :lstrip, :rstrip, :strip, :blank]
+      end
 
-    public
+      private
 
-    NAMES = MB_CHARS_METHODS + SELF_METHODS
-
-    def self.do_filter(method, value)
-      if MB_CHARS_METHODS.include? method
-        value.mb_chars.send(method).to_s
-      elsif SELF_METHODS.include? method
-        send("filter_#{method}", value)
-      else
-        :no_method
+      def to_blank(value)
+        value.blank? ? nil : value
       end
     end
 
-    # Return nil if value is blank or else value itself.
-    def self.filter_nillify(value)
-      value.blank? ? nil : value
-    end
-    class << self
-      alias :filter_nil      :filter_nillify
-      alias :filter_nullify  :filter_nillify
-    end
-
-    # Remove repeated spaces from the string.
-    def self.filter_squish(value)
-      value.squish
-    end
-
+=begin
     def self.filter_currency(value)
       filter_number value, :currency
     end
@@ -75,5 +66,6 @@ module Normatron
 
       res
     end
+=end
   end
 end

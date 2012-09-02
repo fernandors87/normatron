@@ -1,76 +1,51 @@
+require "normatron/filters"
 require "active_record"
 
 module Normatron
   module ActiveRecord
-
     def self.included(base)
       base.instance_eval do
-        extend ClassMethods
-
-        before_validation :normalize_attributes
+        before_validation :apply_normalization
 
         class << self
-          attr_accessor :normalization_options
+          attr_accessor :normalization_filters
+
+          def normalize(*args)
+            options = args.extract_options!
+            options[:with] ||= [:blank, :squish]
+
+            filters = [options[:with]].flatten.compact
+            filters.map!(&:to_sym)
+            intersect = filters & (Filters.filter_names + methods(false))
+
+            unless intersect == filters
+              raise "Normalization filters #{filters - intersect} doesn't exist"
+            end
+
+            @normalization_filters ||= {}
+            args.each do |raw_attribute|
+              attribute = raw_attribute.to_sym
+
+              if self.column_names.include? attribute.to_s
+                @normalization_filters[attribute] ||= []
+                @normalization_filters[attribute] += filters
+              else
+                raise "Attribute '#{attribute}' doesn't exist in #{self}"
+              end
+            end
+          end
         end
       end
     end
+    
+    def apply_normalization
+      return unless self.class.normalization_filters.is_a? Hash
 
-    module ClassMethods
-
-      def normalize(*args)
-        # Extract options
-        @normalization_options ||= {}
-        options = args.extract_options!
-
-        # Set callbacks
-        filters = []
-        if options.empty? # Default standardization
-          filters << [:squish, :nillify]
-        elsif options.has_key? :with
-          filters << options[:with]
-        else
-          raise "Wrong normalization key in #{self.name}, use :with instead of #{options.keys.first}"
-        end
-
-        # Make a prettier array
-        filters = filters.flatten.compact
-        filters.map! { |v| v = v.to_sym }
-
-        # Check filters
-        filters.each do |f|
-          unless Filters::NAMES.include? f
-            raise "Normalization filter '#{f}' doesn't exist"
-          end
-        end
-
-        # Add normalization callbacks
-        args.each do |attribute|
-          # Check attributes
-          unless self.column_names.include? attribute.to_s
-            raise "Attribute '#{attribute}' doesn't exist in #{self.name}"
-          end
-
-          @normalization_options[attribute] ||= []
-          @normalization_options[attribute] += filters
-        end
-      end
-      alias :normatron :normalize
-    end
-
-    def normalize_attributes
-      options = self.class.normalization_options
-      return unless options
-
-      options.each do |attribute, methods|
+      self.class.normalization_filters.each do |attribute, filters|
         value = send("#{attribute}_before_type_cast")  || send(attribute)
 
-        methods.each do |method|
-          value = Filters.do_filter(method, value) unless value.nil?
-
-          if value == :no_method
-            raise ArgumentError, "Method :#{method} cannot be resolved.
-             Check options for #{attribute} in #{klass}", caller
-          end
+        filters.each do |filter|
+          value = Filters.apply(filter, value)
         end
 
         write_attribute attribute, value
