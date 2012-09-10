@@ -1,0 +1,193 @@
+h1. Normatron
+
+Normatron is an attribute normalizer for ActiveRecord objects.
+With it you can convert attributes to the desired format before saving them in the database.
+This gem inhibits the work of having to override attributes or create a specific method to perform most of the normalizations.
+
+h2. Installation
+
+Let the bundler install the gem by adding the following into your application gemfile:
+
+<pre>gem 'normatron'</pre>
+
+And then bundle it up:
+
+<pre>$ bundle install</pre>
+
+Or install it by yourself:
+
+<pre>$ gem install normatron</pre>
+
+h2. The problem
+
+Suppose you have a product model as the following:
+
+<pre>
+# ./db/migrate/20120101010000_create_products.rb
+class CreateProducts < ActiveRecord::Migration
+  def change
+    create_table :products do |t|
+      t.string  :name
+      t.decimal :price, :precision => 10, :scale => 2
+    end
+  end
+end
+
+# ./app/models/products.rb
+class Product < ActiveRecord::Base
+  attr_accessible :name, :price
+end
+</pre>
+
+And you want the 'name' attribute be uppercased before saving it into the database.
+The most usual approach to do this includes:
+
+* Override the 'name' setter and convert the value to an uppercased string.
+* Use the 'before_validation' callback to run a method or block doing the task.
+
+Both ways are ilenegant, boring, error prone and very expensive.
+What led me to make this gem and offer a third way to solve the problem:
+
+h2. Usage
+
+h3. Single attribute with standard filters
+
+<pre>
+# ./app/models/products.rb
+class Product < ActiveRecord::Base
+  attr_accessible :name, :price
+  normalize :name
+end
+
+$ rails console
+> pa = Product.create :name => "  memory   card    "
+> pa.name
+=> "memory card"
+> pb = Product.create :name => "    "
+> pb.name
+=> nil
+</pre>
+
+Normatron will use *:squish* and *:blank* filters if no option was given.
+
+h3. Multiple filters to a single attribute
+
+<pre>normalize :name, :with => [:blank, :squish, :upcase]</pre>
+
+Just add the *:with* option and pass the filters as an array.
+
+h3. Multiple attributes with same filters
+
+<pre>normalize :name, :brand, :with => [:capitalize, :blank]</pre>
+
+All symbols outside the *:with* option are flagged as an attribute.
+
+h3. Multiple attributes with different filters
+
+<pre>
+# ./app/models/user.rb
+class User < ActiveRecord::Base
+  attr_accessible :name, :surname, :login, :password, :email
+  normalize :name, :surname, :email, :login, :with => [:blank, :squish]
+  normalize :name, :surname, :with => :upcase
+  normalize :email, :with => :downcase
+end
+
+$ rails console
+> u = User.create :name => " c  h  u  c  k", :surname => "  norris   ", :email => "IKillYou@MostBadass.com", :login => "ALLineedislove"
+> u.name
+=> "C H U C K"
+> u.surname
+=> "NORRIS"
+> u.email
+=> "ikillyou@mostbadass.com"
+</pre>
+
+You can stack filters to an attribute calling the *normalize* method multiple times.
+
+h3. Using custom instance method as a filter
+
+<pre>
+# ./app/models/client.rb
+class Client < ActiveRecord::Base
+  attr_accessible :name, :phone
+
+  normalize :phone, :with => :my_phone_filter
+
+  def my_phone_filter(value)
+    digits = value.gsub(/[^\d]/, '')
+    "(%s) %s-%s" % [digits[0..1], digits[2..5], digits[6..9]]
+  end
+end
+
+$ rails console
+> p = Client.create :name => "Jim Raynor", :phone => " a1b c2d e3f g4h i5j k6l m7n o8p q9r s1t "
+> p.phone
+=> "(12) 3456-7891"
+</pre>
+
+Create an instance method that returns the value as you want. The method must have an unique mandatory parameter.
+
+h2. Filters
+
+table{border:1px solid black}.
+|_. FILTER|_. INPUT|_.OUTPUT|
+|:blank|"text"|"text"|
+|:blank|" "|nil|
+|:blank|"\n"|nil|
+|:blank|""|nil|
+|:capitalize|"power overwhelming"|"Power overwhelming"|
+|:capitalize|"POWER overwhelming"|"Power overwhelming"|
+|:capitalize|" power overwhelming"|" power overwhelming"|
+|:downcase|"EDWARD"|"edward"|
+|:lstrip|" Chrono Trigger "|"Chrono Trigger "|
+|:rstrip|" Chrono Cross "|" Chrono Cross"|
+|:squish|" "|""|
+|:squish|" \n \r \t \f "|""|
+|:squish|" Master of Puppets "|"Master of Puppets"|
+|:strip|" Final Fantasy "|"Final Fantasy"|
+|:titlecase or :titleize|" system of a down "|" System Of A Down "|
+|:upcase|"text"|"TEXT"|
+
+h1. Changelog
+
+- 0.0.7 :=
+* Ability to use an instance method as a filter
+=:
+
+h1. Contributing
+
+* Fork it, add your new features or bug fixes, make your tests and commit.
+* Report any bug or unexpected behavior.
+* Send me your feedback.
+* Pay me a beer. =]
+
+h1. Special Thanks
+
+h1. Special Thanks
+
+This gem was inspired on work of "fnando (fnando's Github)":https://github.com/fnando called "normalize_attributes (normalize_attributes gem)":https://github.com/fnando/normalize_attributes.
+He have a lot of interesting gems on his repo, please take a look.
+
+h1. Licence
+
+Copyright 2012 Fernando Rodrigues da Silva
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

@@ -3,3 +3,5 @@ log/*.log
 pkg/
 *.gem
 doc/
+docs/
+teste/

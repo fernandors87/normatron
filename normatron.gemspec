@@ -14,10 +14,10 @@ Gem::Specification.new do |s|
   s.description = <<-EOF
     Normatron is an attribute normalizer for ActiveRecord objects.
     With it you can convert attributes to the desired format before saving them in the database.
-    This gem inhibits the work of having to override attributes or create a specific method to perform the normalizations.
+    This gem inhibits the work of having to override attributes or create a specific method to perform most of the normalizations.
   EOF
 
-  s.files = Dir["{lib}/**/*"] + ["MIT-LICENSE", "Rakefile", "README.rdoc"]
+  s.files = Dir["{lib}/**/*"] + ["MIT-LICENSE", "Rakefile", "README.textile"]
   s.test_files = Dir["spec/**/*"]
 
   s.add_dependency "rails", ">= 3.0.0"
