@@ -2,7 +2,7 @@ require "normatron/configuration"
 require "normatron/extensions/active_record"
 
 module Normatron
-  VERSION = "0.0.7"
+  VERSION = "0.1.0"
 
   class << self
     def configuration

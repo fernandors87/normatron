@@ -1,4 +1,4 @@
-require "normatron/filters/native"
+require "normatron/filters/string_inflections"
 
 module Normatron
   module Extensions
@@ -34,7 +34,7 @@ module Normatron
             if self.respond_to? filter
               value = send(filter, value)
             else
-              value = Normatron::Filters::Native.apply(filter, value)
+              value = Normatron::Filters::StringInflections.send(filter, value)
             end
           end
 

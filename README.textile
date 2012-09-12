@@ -39,18 +39,21 @@ class Product < ActiveRecord::Base
 end
 </pre>
 
-And you want the 'name' attribute be uppercased before saving it into the database.
+And you want the _name_ attribute be uppercased before saving it into the database.
 The most usual approach to do this includes:
 
-* Override the 'name' setter and convert the value to an uppercased string.
-* Use the 'before_validation' callback to run a method or block doing the task.
+* Override the _name_ setter and convert the value to an uppercased string.
+* Use the _before_validation_ callback to run a method or block doing the task.
 
 Both ways are ilenegant, boring, error prone and very expensive.
 What led me to make this gem and offer a third way to solve the problem:
 
 h2. Usage
 
-h3. Single attribute with standard filters
+h3. The default filters
+
+Normatron uses *:squish* and *:blank* as default filters.
+These filters are applied to all attributes in *normalize* function, since no options was given.
 
 <pre>
 # ./app/models/products.rb
@@ -59,51 +62,86 @@ class Product < ActiveRecord::Base
   normalize :name
 end
 
-$ rails console
-> pa = Product.create :name => "  memory   card    "
-> pa.name
+ $ rails console
+ > p = Product.create name: "  memory   card    "
+ > p.name
 => "memory card"
-> pb = Product.create :name => "    "
-> pb.name
+ > p = Product.create name: "    "
+ > p.name
 => nil
 </pre>
 
-Normatron will use *:squish* and *:blank* filters if no option was given.
+You can also apply the default filters to multiple attributes as following:
 
-h3. Multiple filters to a single attribute
+<pre>normalize :login, :email, :address, :city</pre>
 
-<pre>normalize :name, :with => [:blank, :squish, :upcase]</pre>
+h3. The callback
 
-Just add the *:with* option and pass the filters as an array.
+All filters are automatically applyied in the *before_validation* callback.
+So, the changes occur when you call any method that validates de model.
 
-h3. Multiple attributes with same filters
+<pre>
+ $ rails console
+ > p = Product.create name: "mouse"
+ > p.name
+=> "MOUSE"
+ > p = Product.new name: "keyboard"
+ > p.valid?
+ > p.name
+=> "KEYBOARD"
+ > p = Product.new name: "dvd"
+ > p.save
+ > p.name
+=> "DVD"
+</pre>
 
-<pre>normalize :name, :brand, :with => [:capitalize, :blank]</pre>
+It's possible to call the *apply_normalizations* method. That perform the normalization without do the validations.
 
-All symbols outside the *:with* option are flagged as an attribute.
+<pre>
+ > p = Product.new name: "hd"
+ > p.apply_normalizations
+ > p.name
+=> "HD"
+</pre>
 
-h3. Multiple attributes with different filters
+h3. Specifying filters
+
+Just add the *:with* option and pass the filter you want.
+All Symbols outside the *:with* Hash are flagged as an attribute.
+
+<pre>normalize :login, :address, :city, :with => :upcase</pre>
+
+To apply multiple filters, pass it as an array:
+
+<pre>
+normalize :login, :address, :city, :with => [:upcase, :blank, :strip]
+normalize :email, :with => [:downcase, :blank, :strip]
+</pre>
+
+h3. Mixing all together
+
+You can stack filters to an attribute calling the *normalize* method multiple times.
 
 <pre>
 # ./app/models/user.rb
 class User < ActiveRecord::Base
   attr_accessible :name, :surname, :login, :password, :email
+
   normalize :name, :surname, :email, :login, :with => [:blank, :squish]
   normalize :name, :surname, :with => :upcase
   normalize :email, :with => :downcase
 end
 
-$ rails console
-> u = User.create :name => " c  h  u  c  k", :surname => "  norris   ", :email => "IKillYou@MostBadass.com", :login => "ALLineedislove"
-> u.name
-=> "C H U C K"
-> u.surname
-=> "NORRIS"
-> u.email
-=> "ikillyou@mostbadass.com"
+ $ rails console
+ > u = User.new
+ > u.name = "  \n \f \r \t  "
+ > u.surname = "  norris  "
+ > u.login = "          iKICKasses"
+ > u.email = "GMAIL@CHUCKNORRIS.COM"
+ > u.valid?
+ > u
+=> #<User id: nil, name: nil, surname: "NORRIS", login: "iKICKasses", email: "gmail@chucknorris.com">
 </pre>
-
-You can stack filters to an attribute calling the *normalize* method multiple times.
 
 h3. Using custom instance method as a filter
 
@@ -131,26 +169,25 @@ Create an instance method that returns the value as you want. The method must ha
 h2. Filters
 
 table{border:1px solid black}.
-|_. FILTER|_. INPUT|_.OUTPUT|
-|:blank|"text"|"text"|
-|:blank|" "|nil|
-|:blank|"\n"|nil|
-|:blank|""|nil|
-|:capitalize|"power overwhelming"|"Power overwhelming"|
-|:capitalize|"POWER overwhelming"|"Power overwhelming"|
-|:capitalize|" power overwhelming"|" power overwhelming"|
-|:downcase|"EDWARD"|"edward"|
-|:lstrip|" Chrono Trigger "|"Chrono Trigger "|
-|:rstrip|" Chrono Cross "|" Chrono Cross"|
-|:squish|" "|""|
-|:squish|" \n \r \t \f "|""|
-|:squish|" Master of Puppets "|"Master of Puppets"|
-|:strip|" Final Fantasy "|"Final Fantasy"|
-|:titlecase or :titleize|" system of a down "|" System Of A Down "|
-|:upcase|"text"|"TEXT"|
+|_. FILTER|_. DESCRIPTION|
+|:blank|Convert a blank String into a Nil object|
+|:capitalize|Downcase all characters in the sequence and upcase the first|
+|:dasherize|Replace all underscores with dashes|
+|:downcase|Downcase all characters in the sequence|
+|:lstrip|Remove trailing spaces|
+|:rstrip|Remove leading spaces|
+|:squeeze|Replace followed occurrences of the same character by a single one|
+|:squish|Remove trailing, leading, surplus spaces and scape characters|
+|:strip|Remove trailing and leading spaces|
+|:title|Downcase all characters in the sequence and upcase the first character of each word|
+|:upcase|Upcase all characters in the sequence|
 
 h1. Changelog
 
+- 0.1.0 :=
+* Two new filters: dasherize and squeeze
+* Native filters replaced by StringInflections
+=:
 - 0.0.7 :=
 * Ability to use an instance method as a filter
 =:
@@ -159,10 +196,9 @@ h1. Contributing
 
 * Fork it, add your new features or bug fixes, make your tests and commit.
 * Report any bug or unexpected behavior.
+* Share with your friends, forums, communities, job, etc...
 * Send me your feedback.
-* Pay me a beer. =]
-
-h1. Special Thanks
+* Offer me a job or pay me a beer. =]
 
 h1. Special Thanks
 
@@ -171,6 +207,7 @@ He have a lot of interesting gems on his repo, please take a look.
 
 h1. Licence
 
+<pre>
 Copyright 2012 Fernando Rodrigues da Silva
 
 Permission is hereby granted, free of charge, to any person obtaining
@@ -191,3 +228,4 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+</pre>
