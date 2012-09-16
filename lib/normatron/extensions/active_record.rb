@@ -1,4 +1,4 @@
-require "normatron/filters/string_inflections"
+require "normatron/filters"
 
 module Normatron
   module Extensions
@@ -12,13 +12,16 @@ module Normatron
 
             def normalize(*args)
               options = args.extract_options!
-              options[:with] ||= Normatron.configuration.default_filters
-              options[:with] = [options[:with]].flatten
+              return nil unless args
+
+              options[:with] = [options[:with]].flatten.compact
+              options[:with] = Normatron.configuration.default_filters if options[:with].empty?
 
               @normalize_options ||= {}
               args.each do |attribute|
                 @normalize_options[attribute] ||= []
-                @normalize_options[attribute] = options[:with]
+                @normalize_options[attribute] += options[:with]
+                @normalize_options[attribute] = @normalize_options[attribute].uniq
               end
               @normalize_options
             end
@@ -33,8 +36,10 @@ module Normatron
           filters.each do |filter|
             if self.respond_to? filter
               value = send(filter, value)
-            else
+            elsif Normatron::Filters::StringInflections.respond_to? filter
               value = Normatron::Filters::StringInflections.send(filter, value)
+            else
+              value = Normatron::Filters::Conversions.send(filter, value)
             end
           end
 

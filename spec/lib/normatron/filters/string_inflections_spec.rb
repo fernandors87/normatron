@@ -1,5 +1,4 @@
 # encoding: UTF-8
-
 require "spec_helper"
 
 describe Normatron::Filters::StringInflections do
@@ -7,35 +6,24 @@ describe Normatron::Filters::StringInflections do
   let(:mod) { Normatron::Filters::StringInflections }
   let(:val) { @value }
 
-  describe :blank do
-    it "should return nil for empty strings" do
-      value     = ""
-      mod.blank(value).should be_nil
-      mod.blank(value.mb_chars).should be_nil
+  describe :alphas do
+    it "should remove the number and space" do
+      value     = "Doom 3"
+      expected  = "Doom"
+      mod.alphas(value).should eq expected
+      mod.alphas(value.mb_chars).should eq expected.mb_chars
     end
 
-    it "should return nil for blank spaces strings" do
-      value     = "   "
-      mod.blank(value).should be_nil
-      mod.blank(value.mb_chars).should be_nil
-    end
-
-    it 'should return nil for \n \t \r \f strings' do
-      value     = "\n \t \r \f"
-      mod.blank(value).should be_nil
-      mod.blank(value.mb_chars).should be_nil
-    end
-
-    it "should not affect filled string" do
-      value     = "baCon"
-      expected  = "baCon"
-      mod.blank(value).should eq expected
-      mod.blank(value.mb_chars).should eq expected.mb_chars
+    it "should remove line break" do
+      value     = "  \n  "
+      expected  = ""
+      mod.alphas(value).should eq expected
+      mod.alphas(value.mb_chars).should eq expected.mb_chars
     end
 
     it "should not affect non string objects" do
-      mod.blank(nil).should eq nil
-      mod.blank(1).should eq 1
+      mod.alphas(nil).should eq nil
+      mod.alphas(1).should eq 1
     end
   end
 
@@ -76,6 +64,20 @@ describe Normatron::Filters::StringInflections do
     it "should not affect non string objects" do
       mod.dasherize(nil).should eq nil
       mod.dasherize(1).should eq 1
+    end
+  end
+
+  describe :digits do
+    it "should remove non digit characters" do
+      value     = "Quake 3"
+      expected  = "3"
+      mod.digits(value).should eq expected
+      mod.digits(value.mb_chars).should eq expected.mb_chars
+    end
+
+    it "should not affect non string objects" do
+      mod.digits(nil).should eq nil
+      mod.digits(1).should eq 1
     end
   end
 

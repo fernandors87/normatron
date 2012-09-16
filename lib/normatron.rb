@@ -2,7 +2,7 @@ require "normatron/configuration"
 require "normatron/extensions/active_record"
 
 module Normatron
-  VERSION = "0.1.0"
+  VERSION = "0.1.1"
 
   class << self
     def configuration
@@ -16,4 +16,4 @@ module Normatron
   end
 end
 
-ActiveRecord::Base.send :include, Normatron::Extensions::ActiveRecord if defined?(ActiveRecord::Base)
+ActiveRecord::Base.send(:include, Normatron::Extensions::ActiveRecord) if defined?(ActiveRecord::Base)

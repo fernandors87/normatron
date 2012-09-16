@@ -7,73 +7,108 @@ describe Normatron::Extensions::ActiveRecord do
 		model_class.normalize_options = {}
 	end
 
-	it "should allow get and set normalization options" do
-		model_class.normalize(:name, :cpf, with: [:a, :b]).should include(name: [:a, :b], cpf: [:a, :b])
-		model_class.normalize_options.should include(name: [:a, :b], cpf: [:a, :b])
-	end
+  describe :normalize do
+    pending "should remove nil normalization" do
+    pending "attributes"
+    pending "filters"
+  end
+    it "should remove nil normalization filters" do
+      model_class.normalize(:name, :with => [:a, :a, :b, :c, :c, nil])
+      model_class.normalize_options.should == {:name => [:a, :b, :c]}
 
-	it "should allow set multiple attributes" do
-		model_class.normalize(:name, :cpf, :phone)
-		model_class.normalize_options.should include(:name, :cpf, :phone)
-	end
+      model_class.normalize_options = {}
+      model_class.normalize(:name, :with => [nil])
+      model_class.normalize_options.should == {:name => [:squish, :blank]}
+    end
 
-	it "should allow include single filter" do
-		model_class.normalize(:name, with: :a)
-		model_class.normalize_options.should include(name: [:a])
-	end
+    it "should remove repeated normalization filters" do
+      model_class.normalize(:name, :with => [:a, :a, :b, :c, :c])
+      model_class.normalize_options.should == {:name => [:a, :b, :c]}
 
-	it "should allow include multiple filters" do
-		model_class.normalize(:name, with: [:a, :b])
-		model_class.normalize_options.should include(name: [:a, :b])
-	end
+      model_class.normalize(:name, :with => [:a, :d, :e])
+      model_class.normalize_options.should == {:name => [:a, :b, :c, :d, :e]}
+    end
 
-  it "should include default filters" do
-    model_class.normalize(:name)
-    model_class.normalize_options.should include(name: [:squish, :blank])
+    it "should stack repeated normalization attributes" do
+      model_class.normalize(:name, :name, :with => [:a, :b, :c])
+      model_class.normalize_options.should == {:name => [:a, :b, :c]}
+
+      model_class.normalize(:name, :with => [:d, :e])
+      model_class.normalize_options.should == {:name => [:a, :b, :c, :d, :e]}
+    end
+
+    context "with single normalization attribute" do
+      it "should bind to a single attribute" do
+        model_class.normalize(:name, with: :a)
+        model_class.normalize_options.should == {:name => [:a]}
+      end
+
+      it "should bind to multiple attributes" do
+        model_class.normalize(:name, :cpf, with: [:a])
+        model_class.normalize_options.should == {:name => [:a], cpf: [:a]}
+      end
+    end
+
+    context "with multiple normalization attributes" do
+      it "should bind to a single attribute" do
+        model_class.normalize(:name, with: [:a, :b])
+        model_class.normalize_options.should == {:name => [:a, :b]}
+      end
+
+      it "should bind to multiple attributes" do
+        model_class.normalize(:name, :cpf, with: [:a, :b])
+        model_class.normalize_options.should == {:name => [:a, :b], cpf: [:a, :b]}
+      end
+    end
+
+    context "when :with isn't present" do
+      describe "default filters" do
+        it "should bind to a single attribute" do
+          model_class.normalize(:name)
+          model_class.normalize_options.should == {:name => [:squish, :blank]}
+        end
+
+        it "should bind to multiple attributes" do
+          model_class.normalize(:name, :phone)
+          model_class.normalize_options.should == {:name => [:squish, :blank], phone: [:squish, :blank]}
+        end
+      end
+    end
+
   end
 
-  it "should apply normalizations" do
-  	model_class.normalize(:name)
-  	instance = model_class.new
-  	instance.name = "   xxx   "
-  	instance.apply_normalizations
-  	instance.name.should eq "xxx"
+  describe :apply_normalizations do
+    it "should apply Conversion normalizations" do
+      model_class.normalize(:name, :with => :blank)
+      instance = model_class.new name: "     "
+      instance.apply_normalizations
+      instance.name.should be_nil
+    end
 
-  	class Client < ActiveRecord::Base
-  		def my_filter(value)
-  			value.split(//) * "-"
-  		end
-  	end
+    it "should apply StringInflections normalizations" do
+      model_class.normalize(:name, :with => :upcase)
+      instance = model_class.new name: "a"
+      instance.apply_normalizations
+      instance.name.should eq "A"
+    end
 
-  	model_class.normalize(:name, with: :my_filter)
-  	instance = model_class.new
-  	instance.name = "xxx"
-  	instance.apply_normalizations
-  	instance.name.should eq "x-x-x"
+    it "should apply instance methods normalizations" do
+      class Client < ActiveRecord::Base
+        def my_filter(value)
+          value.split(//) * "-"
+        end
+      end
+
+      model_class.normalize(:name, :with => :my_filter)
+      instance = model_class.new name: "aaa"
+      instance.apply_normalizations
+      instance.name.should eq "a-a-a"
+    end
   end
 
-  pending "should apply default normalizations when :with is ommited"
-  pending "should apply instance methods normalizations"
   pending "should apply blocks normalizations"
   pending "should apply modules normalizations"
   pending "should apply configuration blocks normalizations"
-
-  pending "should set default normalization filters" do
-  	pending "to single attribute"
-  	pending "to multiple attributes"
-  end
-  pending "should set single normalization filter" do
-  	pending "to single attribute"
-  	pending "to multiple attributes"
-  end
-  pending "should set multiple normalization filters" do
-  	pending "to single attribute"
-  	pending "to multiple attributes"
-  end
-  pending "should remove repeated normalization" do
-  	pending "attributes"
-  	pending "filters"
-  end
   pending "should remove nil normalization" do
   	pending "attributes"
   	pending "filters"
