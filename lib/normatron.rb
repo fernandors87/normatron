@@ -2,12 +2,13 @@ require "normatron/configuration"
 require "normatron/extensions/active_record"
 
 module Normatron
-  VERSION = "0.1.1"
+  VERSION = "0.2.0"
 
   class << self
     def configuration
       @configuration ||= Configuration.new
-    end   
+    end
+    alias :config :configuration
 
     def configure
       yield(configuration)

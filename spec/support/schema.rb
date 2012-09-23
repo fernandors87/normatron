@@ -1,10 +1,7 @@
 ActiveRecord::Schema.define(:version => 0) do
-  create_table :clients do |t|
-  	t.string 	:name
-  	t.decimal :credit_limit, precision: 10, scale: 2
-  	t.string 	:cpf
-  	t.date 		:birth_date
-  	t.string 	:phone
-  	t.integer :login_count
+  create_table :models do |t|
+  	t.string 	:field_a
+  	t.string  :field_b
+    t.string  :field_c
   end
 end

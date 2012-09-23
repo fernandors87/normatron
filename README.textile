@@ -39,7 +39,7 @@ class Product < ActiveRecord::Base
 end
 </pre>
 
-And you want the _name_ attribute be uppercased before saving it into the database.
+And we want the _name_ attribute be uppercased before saving it into the database.
 The most usual approach to do this includes:
 
 * Override the _name_ setter and convert the value to an uppercased string.
@@ -50,9 +50,7 @@ What led me to make this gem and offer a third way to solve the problem:
 
 h2. Usage
 
-h3. The default filters
-
-Normatron uses *:squish* and *:blank* as default filters.
+Normatron uses ":squish":http://rubydoc.info/gems/normatron/Normatron/Filters#squish-class_method and ":blank":http://rubydoc.info/gems/normatron/Normatron/Filters#blank-class_method as default filters.
 These filters are applied to all attributes in *normalize* function, since no options is given.
 
 <pre>
@@ -62,144 +60,172 @@ class Product < ActiveRecord::Base
   normalize :name
 end
 
- $ rails console
- > p = Product.create name: "  memory   card    "
- > p
+$ rails console
+> p1 = Product.create name: "  memory   card    "
+> p1
 => #<Product id: nil, name: "memory card", price: nil>
- > q = Product.create name: "    "
- > q
+> p2 = Product.create name: "    "
+> p2
 => #<Product id: nil, name: nil, price: nil>
 </pre>
 
-You can also apply the default filters to multiple attributes as following:
+h3. The _normalize_attributes_ method
 
-<pre>normalize :login, :email, :address, :city</pre>
-
-h3. Changes occur before validation
-
-All filters are automatically applyied in the *before_validation* callback.
-So, the changes occur when you call any method that validates de model.
+All filters are automatically applied in the "before_validation":http://api.rubyonrails.org/classes/ActiveRecord/Callbacks.html callback.
+So, the changes occur when you call any method that validates the model.
 
 <pre>
- $ rails console
- > p = Product.create name: "mouse"
- > p.name
-=> "MOUSE"
- > p = Product.new name: "keyboard"
- > p.valid?
- > p.name
-=> "KEYBOARD"
- > p = Product.new name: "dvd"
- > p.save
- > p.name
-=> "DVD"
+$ rails console
+> p = Product.create name: "      "
+> p.name
+=> nil
+> p = Product.new name: "   keyboard     \n        "
+> p.valid?
+> p.name
+=> "keyboard"
+> p = Product.new name: "\n\nblu    ray\n\n"
+> p.save
+> p.name
+=> "blu ray"
 </pre>
 
-It's possible to call the *apply_normalizations* method. That perform the normalization without do the validations.
+We can call the *normalize_attributes* method to perform the normalization without do the validations.
 
 <pre>
- > p = Product.new name: "hd"
- > p.apply_normalizations
- > p.name
-=> "HD"
+> p = Product.new name: "  hard    drive"
+> p.normalize_attributes
+> p.name
+=> "hard drive"
 </pre>
 
-h3. Specifying filters
+h3. The _normalize_options_ method
 
-Just add the *:with* option and pass the filters you want.
-All Symbols outside the *:with* Hash are flagged as an attribute.
-
-<pre>normalize :login, :address, :city, :with => :upcase</pre>
-
-To apply multiple filters, pass it as an array:
+To read the normalization filters set for a model, just call the *normalize_options* method.
 
 <pre>
-normalize :login, :address, :city, :with => [:upcase, :blank, :strip]
-normalize :email, :with => [:downcase, :blank, :strip]
+$ rails console
+> Product.normalize_options
+=> { name: { :squish => [], :blank => [] } }
 </pre>
 
-h3. Stacking Filters
-
-You can stack filters to an attribute calling the *normalize* method multiple times.
+This method returns a Hash, where the keys are the attribute names and values ​​are another Hash with filter options.
+In Hash with filter options, keys represent the filter names and the values ​​are Arrays with the arguments that are passed to the methods of filtering.
+The following example is a data structure returned by the _normalize_options_ method.
 
 <pre>
-# ./app/models/user.rb
-class User < ActiveRecord::Base
-  attr_accessible :name, :surname, :login, :password, :email
+$ rails console
+> MyModel.normalize_options
+=> { :attribute_a => { :filter_a => [] },
+     :attribute_b => { :filter_a => [],
+                       :filter_b => [arg_a, arg_b] },
+     :attribute_c => { :filter_b => [arg_a, arg_b],
+                       :filter_c => [arg],
+                       :filter_d => [] },
+     :attribute_d => { :filter_a => [],
+                       :filter_c => [arg],
+                       :filter_d => [arg_a, arg_b, arg_c, arg_d] } }
+</pre>
 
-  normalize :name, :surname, :email, :login, :with => [:blank, :squish]
-  normalize :name, :surname, :with => :upcase
-  normalize :email, :with => :downcase
+h3. The _:with_ option
+
+The _:with_ option allows to bind filters to one attribute or more.
+
+<pre>
+class Product < ActiveRecord::Base
+  normalize :name, :with => :upcase
 end
 
- $ rails console
- > u = User.new
- > u.name = "  \n \f \r \t  "
- > u.surname = "  norris  "
- > u.login = "          iKICKasses"
- > u.email = "GMAIL@CHUCKNORRIS.COM"
- > u.valid?
-=> true
- > u
-=> #<User id: nil, name: nil, surname: "NORRIS", login: "iKICKasses", email: "gmail@chucknorris.com">
+$ rails console
+> Product.normalize_options
+=> { :name => { :upcase => [] } }
 </pre>
 
-h3. Model instance filter
+The filters passed throught _:with_ option will not stack with default filters.
+When _normalize_ method is used multiple times for the same attribute, it will stack the filter bindings.
 
-Create an instance method returning the value as you want. The method must have an unique mandatory parameter.
+<pre>
+class Product < ActiveRecord::Base
+  normalize :name
+  normalize :name, :with => :upcase
+end
+
+$ rails console
+> Product.normalize_options
+=> { :name => { :squish => [],
+                :blank  => [],
+                :upcase => [] } }
+</pre>
+
+The same result can be obtained using:
+
+<pre>normalize :name, :with => [:squish, :blank, :upcase]</pre>
+
+Some filters may use arguments to perferm normalizations.
+There are two approaches to deal with filter arguments in Normatron:
+
+a) Using a Hash where the key is the filter name and the value is the filter arguments as an Array.
+
+<pre>
+class Product < ActiveRecord::Base
+  normalize :name,        :with => [ { :keep => [:Latin], :remove => [:Nd, :Zs] } ]
+  normalize :description, :with => :squeeze
+  normalize :brand,       :with => [ { :squeeze => ["a-z"] }, { :keep => [:Word] } ]
+end
+</pre>
+
+b) Using an Array where the first element if the attribute name and rest is the filter arguments.
+
+<pre>
+class Product < ActiveRecord::Base
+  normalize :name,        :with => [ [:keep, :Latin], [:remove, :Nd, :Zs] ]
+  normalize :description, :with => :squeeze
+  normalize :brand,       :with => [ [:squeeze, "a-z"], [:keep, :Word] ]
+end
+</pre>
+
+Both ways will produce the same result:
+
+<pre>
+$ rails console
+> Product.normalize_options
+=> { :name        => { :keep    => [:Latin],
+                       :remove  => [:Nd, :Zs] },
+     :description => { :squeeze => [] },
+     :brand       => { :squeeze => ["a-z"],
+                       :keep    => [:Word] } }
+</pre>
+
+h3. Using instance method as filter
+
+Create an instance method returning the value as you want.
+The first argument is mandatory, and will receive the original value of the attribute.
+If you need to use aditional arguments or varargs, just add them after the first argument.
 
 <pre>
 # ./app/models/client.rb
 class Client < ActiveRecord::Base
-  attr_accessible :name, :phone
+  normalize :phone, :with => [:custom_a, [:custom_b, :a, :b], { :custom_c => [:a, :b, :c] }]
 
-  normalize :phone, :with => :my_phone_filter
+  def custom_a(value)
+    # ...
+  end
 
-  def my_phone_filter(value)
-    digits = value.gsub(/\D/, '')
-    "(%s) %s-%s" % [digits[0..1], digits[2..5], digits[6..9]]
+  def custom_b(value, *args)
+    # ...
+  end
+
+  def custom_c(value, arg_a, arg_b, arg_c)
+    # ...
   end
 end
-
-$ rails console
-> p = Client.create :name => "Jim Raynor", :phone => "!a1b@c2d#e3f$g4h i5j%k6l&m7n*o8p(q9r)s1t "
-> p.phone
-=> "(12) 3456-7891"
 </pre>
 
 h2. Filters
 
-table.
-|_. FILTER|_. DESCRIPTION|
-|:alphas|Remove all non letter characters|
-|:blank|Convert a blank String into a Nil object|
-|:capitalize|The first character will be uppercased, all others will be lowercased|
-|:dasherize|Replace all underscores with dashes|
-|:digits|Remove all non digit characters|
-|:downcase|Lowercase all characters on the sequence|
-|:lstrip|Remove trailing spaces|
-|:rstrip|Remove leading spaces|
-|:squeeze|Replace followed occurrences of the same character by a single one|
-|:squish|Remove trailing, leading, surplus spaces and scape characters|
-|:strip|Remove trailing and leading spaces|
-|:title|Downcase all characters in the sequence and upcase the first character of each word|
-|:upcase|Upcase all characters in the sequence|
+Information about native filters and how to use them can be found in:
 
-h1. Changelog
-
-- 0.1.1 :=
-* Two new filters: alphas and digits
-* Blank filter extracted from StringInflections to Conversors
-* Fixed bug filter stack to same attribute
-* Nil attributes will be ignored
-=:
-- 0.1.0 :=
-* Two new filters: dasherize and squeeze
-* Native filters replaced by StringInflections
-=:
-- 0.0.7 :=
-* Ability to use an instance method as a filter
-=:
+* "Normatron::Filters Rubydoc (Normatron::Filters Rubydoc)":http://rubydoc.info/gems/normatron/Normatron/Filters
+* "Normatron::Filters Source (Normatron::Filters Source)":https://github.com/fernandors87/normatron/blob/master/lib/normatron/filters.rb
 
 h1. Contributing
 
@@ -209,32 +235,12 @@ h1. Contributing
 * Send me your feedback.
 * Offer me a job or pay me a beer. =]
 
-h1. Special Thanks
+h1. Credits
 
-This gem was inspired on work of "fnando (fnando's Github)":https://github.com/fnando called "normalize_attributes (normalize_attributes gem)":https://github.com/fnando/normalize_attributes.
-He have a lot of interesting gems on his repo, please take a look.
+This gem was initially inspired on these gems:
+* "normalize_attributes (normalize_attributes Gem)":https://github.com/fnando/normalize_attributes - "fnando (fnando's Github)":https://github.com/fnando 
+* "attribute_normalizer (attribute_normalizer Gem)":https://github.com/mdeering/attribute_normalizer - "mdeering (mdeering's Github)":https://github.com/mdeering
 
-h1. MIT Licence
+h1. License
 
-<pre>
-Copyright 2012 Fernando Rodrigues da Silva
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-</pre>
+See file attached to source code or click "here":https://github.com/fernandors87/normatron/blob/master/MIT-LICENSE.
