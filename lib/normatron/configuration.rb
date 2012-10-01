@@ -20,7 +20,7 @@ module Normatron
     end
 
     def initialize
-      @default_filters = {squish: [], blank: []}
+      @default_filters = { squish: [], blank: [] }
     end
 
     def default_filters

@@ -1,29 +1,28 @@
 h1. Normatron
 
-Normatron is an attribute normalizer for ActiveRecord objects.
-With it you can convert attributes to the desired format before saving them in the database.
+Normatron is an Ruby On Rails plugin that perform attribute normalizations for ActiveRecord objects.
+With it you can normalize attributes to the desired format before saving them in the database.
 This gem inhibits the work of having to override attributes or create a specific method to perform most of the normalizations.
 
 h2. Installation
 
 Let the bundler install the gem by adding the following into your application gemfile:
 
-<pre>gem 'normatron'</pre>
+pre. gem 'normatron'
 
 And then bundle it up:
 
-<pre>$ bundle install</pre>
+pre. $ bundle install
 
 Or install it by yourself:
 
-<pre>$ gem install normatron</pre>
+pre. $ gem install normatron
 
 h2. The problem
 
 Suppose you have a product model as the following:
 
-<pre>
-# ./db/migrate/20120101010000_create_products.rb
+pre. # ./db/migrate/20120101010000_create_products.rb
 class CreateProducts < ActiveRecord::Migration
   def change
     create_table :products do |t|
@@ -33,88 +32,63 @@ class CreateProducts < ActiveRecord::Migration
   end
 end
 
-# ./app/models/products.rb
+pre. # ./app/models/products.rb
 class Product < ActiveRecord::Base
   attr_accessible :name, :price
 end
-</pre>
 
 And we want the _name_ attribute be uppercased before saving it into the database.
 The most usual approach to do this includes:
 
 * Override the _name_ setter and convert the value to an uppercased string.
-* Use the _before_validation_ callback to run a method or block doing the task.
+* Use the "_before_validation_":http://api.rubyonrails.org/classes/ActiveRecord/Callbacks.html callback to run a method or block doing the task.
 
 Both ways are ilenegant, boring, error prone and very expensive.
-What led me to make this gem and offer a third way to solve the problem:
+What led me to make this gem and offer a third way to solve this issue:
 
 h2. Usage
 
-Normatron uses ":squish":http://rubydoc.info/gems/normatron/Normatron/Filters#squish-class_method and ":blank":http://rubydoc.info/gems/normatron/Normatron/Filters#blank-class_method as default filters.
-These filters are applied to all attributes in *normalize* function, since no options is given.
+Normatron uses "_:squish_":http://rubydoc.info/gems/normatron/Normatron/Filters#squish-class_method and "_:blank_":http://rubydoc.info/gems/normatron/Normatron/Filters#blank-class_method as default filters.
+These filters are applied to all attributes in @normalize@ function, since no options is given.
 
-<pre>
-# ./app/models/products.rb
+pre. # ./app/models/products.rb
 class Product < ActiveRecord::Base
   attr_accessible :name, :price
   normalize :name
 end
 
-$ rails console
-> p1 = Product.create name: "  memory   card    "
-> p1
+pre.  $ rails console
+ > p1 = Product.create name: "  memory   card    "
 => #<Product id: nil, name: "memory card", price: nil>
-> p2 = Product.create name: "    "
-> p2
+ > p2 = Product.create name: "    "
 => #<Product id: nil, name: nil, price: nil>
-</pre>
 
 h3. The _normalize_attributes_ method
 
-All filters are automatically applied in the "before_validation":http://api.rubyonrails.org/classes/ActiveRecord/Callbacks.html callback.
-So, the changes occur when you call any method that validates the model.
+Methods like "create":http://api.rubyonrails.org/classes/ActiveRecord/Persistence/ClassMethods.html#method-i-create, "valid?":http://api.rubyonrails.org/classes/ActiveRecord/Validations.html#method-i-valid-3F or "save":http://api.rubyonrails.org/classes/ActiveRecord/Validations.html#method-i-valid-3F always call the _normalize_attributes_ method, thought "before_validation":http://api.rubyonrails.org/classes/ActiveRecord/Callbacks.html callback.
+This is the method that invokes all filters to their attributes. So you can perform the normalizations without necessarily having to perform the model validations.
 
-<pre>
-$ rails console
-> p = Product.create name: "      "
-> p.name
-=> nil
-> p = Product.new name: "   keyboard     \n        "
-> p.valid?
-> p.name
-=> "keyboard"
-> p = Product.new name: "\n\nblu    ray\n\n"
-> p.save
-> p.name
-=> "blu ray"
-</pre>
-
-We can call the *normalize_attributes* method to perform the normalization without do the validations.
-
-<pre>
-> p = Product.new name: "  hard    drive"
-> p.normalize_attributes
-> p.name
-=> "hard drive"
-</pre>
+pre.  $ rails console
+ > p = Product.new name: "  hard    drive"
+=> #<Product id: nil, name: "  hard    drive", price: nil>
+ > p.normalize_attributes
+ > p
+=> #<Product id: nil, name: "hard drive", price: nil>
 
 h3. The _normalize_options_ method
 
-To read the normalization filters set for a model, just call the *normalize_options* method.
+To read the normalization filters set for a model, just call the @normalize_options@ method.
 
-<pre>
-$ rails console
-> Product.normalize_options
+pre.  $ rails console
+ > Product.normalize_options
 => { name: { :squish => [], :blank => [] } }
-</pre>
 
-This method returns a Hash, where the keys are the attribute names and values ​​are another Hash with filter options.
-In Hash with filter options, keys represent the filter names and the values ​​are Arrays with the arguments that are passed to the methods of filtering.
-The following example is a data structure returned by the _normalize_options_ method.
+This method returns a Hash, where the keys are the attribute names and values are another Hash with filter options.
+In the filter options Hash, keys represent the filter names and the values are Arrays containing arguments to be passed to filter methods.
+The following example is a data structure returned by the @normalize_options@ method:
 
-<pre>
-$ rails console
-> MyModel.normalize_options
+pre.  $ rails console
+ > MyModel.normalize_options
 => { :attribute_a => { :filter_a => [] },
      :attribute_b => { :filter_a => [],
                        :filter_b => [arg_a, arg_b] },
@@ -124,76 +98,65 @@ $ rails console
      :attribute_d => { :filter_a => [],
                        :filter_c => [arg],
                        :filter_d => [arg_a, arg_b, arg_c, arg_d] } }
-</pre>
 
 h3. The _:with_ option
 
-The _:with_ option allows to bind filters to one attribute or more.
+The @:with@ option allows to bind filters to one or more attribute.
 
-<pre>
-class Product < ActiveRecord::Base
+pre. class Product < ActiveRecord::Base
   normalize :name, :with => :upcase
 end
 
-$ rails console
-> Product.normalize_options
+pre.  $ rails console
+ > Product.normalize_options
 => { :name => { :upcase => [] } }
-</pre>
 
-The filters passed throught _:with_ option will not stack with default filters.
-When _normalize_ method is used multiple times for the same attribute, it will stack the filter bindings.
+The filters passed throught @:with@ option will not stack with default filters.
+When @normalize@ method is used multiple times for the same attribute, it will stack the filter bindings.
 
-<pre>
-class Product < ActiveRecord::Base
+pre. class Product < ActiveRecord::Base
   normalize :name
   normalize :name, :with => :upcase
 end
 
-$ rails console
-> Product.normalize_options
+pre.  $ rails console
+ > Product.normalize_options
 => { :name => { :squish => [],
                 :blank  => [],
                 :upcase => [] } }
-</pre>
 
 The same result can be obtained using:
 
-<pre>normalize :name, :with => [:squish, :blank, :upcase]</pre>
+pre. normalize :name, :with => [:squish, :blank, :upcase]
 
 Some filters may use arguments to perferm normalizations.
 There are two approaches to deal with filter arguments in Normatron:
 
-a) Using a Hash where the key is the filter name and the value is the filter arguments as an Array.
+a) Using a Hash where the key is the filter name and the value is an arguments Array.
 
-<pre>
-class Product < ActiveRecord::Base
+pre. class Product < ActiveRecord::Base
   normalize :name,        :with => [ { :keep => [:Latin], :remove => [:Nd, :Zs] } ]
   normalize :description, :with => :squeeze
   normalize :brand,       :with => [ { :squeeze => ["a-z"] }, { :keep => [:Word] } ]
 end
-</pre>
 
 b) Using an Array where the first element if the attribute name and rest is the filter arguments.
 
-<pre>
-class Product < ActiveRecord::Base
+pre. class Product < ActiveRecord::Base
   normalize :name,        :with => [ [:keep, :Latin], [:remove, :Nd, :Zs] ]
   normalize :description, :with => :squeeze
   normalize :brand,       :with => [ [:squeeze, "a-z"], [:keep, :Word] ]
 end
-</pre>
 
 Both ways will produce the same result:
 
-<pre>
-$ rails console
-> Product.normalize_options
+pre.  $ rails console
+ > Product.normalize_options
 => { :name        => { :keep    => [:Latin],
                        :remove  => [:Nd, :Zs] },
      :description => { :squeeze => [] },
      :brand       => { :squeeze => ["a-z"],
                        :keep    => [:Word] } }
-</pre>
 
 h3. Using instance method as filter
 
@@ -204,7 +167,8 @@ If you need to use aditional arguments or varargs, just add them after the first
 <pre>
 # ./app/models/client.rb
 class Client < ActiveRecord::Base
-  normalize :phone, :with => [:custom_a, [:custom_b, :a, :b], { :custom_c => [:a, :b, :c] }]
+  normalize :phone,  :with => [:custom_a, [:custom_b, :a, :b], {:custom_c => [:a, :b, :c]}]
+  normalize :mobile, :with => [:custom_a, {:custom_b => [:a, :b]}, [:custom_c, :a, :b, :c]]
 
   def custom_a(value)
     # ...
@@ -222,18 +186,21 @@ end
 
 h2. Filters
 
-Information about native filters and how to use them can be found in:
-
-* "Normatron::Filters Rubydoc (Normatron::Filters Rubydoc)":http://rubydoc.info/gems/normatron/Normatron/Filters
-* "Normatron::Filters Source (Normatron::Filters Source)":https://github.com/fernandors87/normatron/blob/master/lib/normatron/filters.rb
+Information about native filters and how to use them can be found in "Normatron::Filters(Normatron::Filters Rubydoc)":http://rubydoc.info/gems/normatron/Normatron/Filters. All methods have a short description of what they do and some examples of how to use them.
 
 h1. Contributing
 
-* Fork it, add your new features or bug fixes, make your tests and commit.
-* Report any bug or unexpected behavior.
-* Share with your friends, forums, communities, job, etc...
-* Send me your feedback.
-* Offer me a job or pay me a beer. =]
+There are several ways to make this gem even better:
+
+* Forking this project
+* Adding new features or bug fixes
+* Making tests
+* Commiting your changes
+* Reporting any bug or unexpected behavior
+* Suggesting any improvement
+* Sharing with your friends, forums, communities, job, etc...
+* Helping users with difficulty using this gem
+* Paying me a beer =]
 
 h1. Credits
 
