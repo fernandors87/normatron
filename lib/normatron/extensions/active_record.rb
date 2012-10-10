@@ -1,16 +1,19 @@
-require "normatron/filters"
+require 'active_record'
 
 module Normatron
   module Extensions
     module ActiveRecord
+
+      ORM_CLASS = ::ActiveRecord::Base
+
       def self.included(base)
         base.instance_eval do
           extend ClassMethods
           include InstanceMethods
-          before_validation :normalize_attributes
+          before_validation :apply_normalizations
 
           class << self
-            attr_accessor :normalize_options
+            attr_accessor :normalize_filters
           end
         end
       end
@@ -19,38 +22,40 @@ module Normatron
         def normalize(*args)
           # Check existence of all attributes
           options = args.extract_options!
-          args, columns = args.map(&:to_sym), column_names.map(&:to_sym)
-          raise "attribute" if (columns & args).size != args.size
+          filters, columns = args.map(&:to_s), column_names
+          raise UnknownAttributeError if (columns & filters).size != filters.size
 
           # Specify the use of default filters or not
           if options[:with].nil? || options[:with].blank?
             new_filters = Normatron.config.default_filters
           else
-            new_filters = Normatron::Configuration.clean_filters(options[:with])
+            new_filters = Normatron.build_hash(options[:with])
           end
 
           # Append to older filters hash
-          @normalize_options ||= {}
-          @normalize_options =
-          args.reduce(@normalize_options) do |hash, att|
-            filters = (@normalize_options[att] || {}).merge(new_filters)
+          @normalize_filters ||= {}
+          @normalize_filters =
+          args.reduce(@normalize_filters) do |hash, att|
+            filters = (@normalize_filters[att] || {}).merge(new_filters)
             hash.merge({att => filters})
           end
         end
       end
 
       module InstanceMethods
-        def normalize_attributes
-          self.class.normalize_options.each do |attribute, filters|
+        def apply_normalizations
+          named_filters = Normatron.configuration.filters
+
+          self.class.normalize_filters.each do |attribute, filters|
             value = send("#{attribute}_before_type_cast") || send(attribute)
 
             filters.each do |filter, args|
               if self.respond_to? filter
                 value = send(filter, value, *args)
-              elsif Normatron::Filters.respond_to? filter
-                value = Normatron::Filters.send(filter, value, *args)
+              elsif !named_filters[filter].nil?
+                value = named_filters[filter].evaluate(value, *args)
               else
-                raise "Filter '#{filter}' wasn't found."
+                raise UnknownFilterError
               end
             end
 

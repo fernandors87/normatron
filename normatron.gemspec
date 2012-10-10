@@ -1,7 +1,7 @@
 $:.push File.expand_path("../lib", __FILE__)
 
 # Maintain your gem's version:
-require "normatron"
+require "normatron/version"
 
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |s|
@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.homepage    = "https://github.com/fernandors87/normatron"
   s.summary     = "Normalize attributes for ActiveRecord objects."
   s.description = <<-EOF
-    Normatron is an Ruby On Rails plugin that perform attribute normalizations for ActiveRecord objects.
+    Normatron is a Ruby On Rails plugin that perform attribute normalizations for ActiveRecord objects.
     With it you can normalize attributes to the desired format before saving them in the database.
     This gem inhibits the work of having to override attributes or create a specific method to perform most of the normalizations.
   EOF

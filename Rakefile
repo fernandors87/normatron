@@ -1,4 +1,5 @@
 #!/usr/bin/env rake
+=begin
 begin
   require 'bundler/setup'
 rescue LoadError
@@ -22,13 +23,11 @@ end
 
 Bundler::GemHelper.install_tasks
 
-require 'rake/testtask'
+=end
+require 'rspec/core/rake_task'
 
-Rake::TestTask.new(:test) do |t|
-  t.libs << 'lib'
-  t.libs << 'test'
-  t.pattern = 'test/**/*_test.rb'
-  t.verbose = false
+RSpec::Core::RakeTask.new(:spec) do |task|
+  task.rspec_opts = '--color -f d'
 end
 
-task :default => :test
+task :default => :spec

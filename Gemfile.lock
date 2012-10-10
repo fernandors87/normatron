@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    normatron (0.2.0)
+    normatron (0.3.0)
       activerecord (>= 3.2.0)
       activesupport (>= 3.2.0)
 
