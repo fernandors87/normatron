@@ -9,6 +9,7 @@ module Normatron
       @default_filters = { blank: nil, squish: nil }
 
       @filters = {}
+      @filters[:ascii]      = Normatron::Filters::AsciiFilter
       @filters[:blank]      = Normatron::Filters::BlankFilter
       @filters[:camelize]   = Normatron::Filters::CamelizeFilter
       @filters[:capitalize] = Normatron::Filters::CapitalizeFilter

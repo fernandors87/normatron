@@ -14,16 +14,6 @@ module Normatron
         value.gsub(regex, "")
       end
 
-      def evaluate_strip(value, edges)
-        constructs = []
-        constructs << '\A\s*' if edges == :L || edges == :LR
-        constructs << '\s*\z' if edges == :R || edges == :LR
-        regex_string = constructs.join '|'
-        regex = Regexp.new(/#{regex_string}/)
-
-        value.gsub(regex, '')
-      end
-
       def acronyms
         inflections.acronyms
       end

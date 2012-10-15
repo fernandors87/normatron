@@ -13,30 +13,32 @@ module Normatron
           before_validation :apply_normalizations
 
           class << self
-            attr_accessor :normalize_filters
+            attr_accessor :normalize_rules
+            alias :normalize_filters :normalize_rules
+            alias :normalize_filters= :normalize_rules=
           end
         end
       end
 
       module ClassMethods
         def normalize(*args)
-          # Check existence of all attributes
+          # Check the existence of all attributes
           options = args.extract_options!
           filters, columns = args.map(&:to_s), column_names
           raise UnknownAttributeError if (columns & filters).size != filters.size
 
-          # Specify the use of default filters or not
+          # Need to use default filters?
           if options[:with].nil? || options[:with].blank?
             new_filters = Normatron.config.default_filters
           else
             new_filters = Normatron.build_hash(options[:with])
           end
 
-          # Append to older filters hash
-          @normalize_filters ||= {}
-          @normalize_filters =
-          args.reduce(@normalize_filters) do |hash, att|
-            filters = (@normalize_filters[att] || {}).merge(new_filters)
+          # Append new filters to rules
+          @normalize_rules ||= {}
+          @normalize_rules =
+          args.reduce(@normalize_rules) do |hash, att|
+            filters = (@normalize_rules[att] || {}).merge(new_filters)
             hash.merge({att => filters})
           end
         end
@@ -44,7 +46,7 @@ module Normatron
 
       module InstanceMethods
         def apply_normalizations
-          named_filters = Normatron.configuration.filters
+          listed_filters = Normatron.configuration.filters
 
           self.class.normalize_filters.each do |attribute, filters|
             value = send("#{attribute}_before_type_cast") || send(attribute)
@@ -52,8 +54,10 @@ module Normatron
             filters.each do |filter, args|
               if self.respond_to? filter
                 value = send(filter, value, *args)
-              elsif !named_filters[filter].nil?
-                value = named_filters[filter].evaluate(value, *args)
+              elsif listed_filters[filter].kind_of? Module
+                value = listed_filters[filter].evaluate(value, *args)
+              elsif listed_filters[filter].kind_of? Proc
+                value = listed_filters[filter].call(value, *args)
               else
                 raise UnknownFilterError
               end

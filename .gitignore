@@ -1,9 +1,7 @@
-.bundle/
-log/*.log
-pkg/
-*.gem
-doc/
 .yardoc/
-teste/
+doc/
+spec/.rspec
+test/
 .yardopts
-/spec/.rspec
+*.gem
+*.textile

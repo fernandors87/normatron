@@ -21,28 +21,37 @@ describe Normatron::Configuration do
   end
 
   describe :filters do
-    it "should be initialized" do
-      subject.filters[:blank]     .should eq Normatron::Filters::BlankFilter
-      subject.filters[:camelize]  .should eq Normatron::Filters::CamelizeFilter
-      subject.filters[:capitalize].should eq Normatron::Filters::CapitalizeFilter
-      subject.filters[:chomp]     .should eq Normatron::Filters::ChompFilter
-      subject.filters[:dasherize] .should eq Normatron::Filters::DasherizeFilter
-      subject.filters[:downcase]  .should eq Normatron::Filters::DowncaseFilter
-      subject.filters[:dump]      .should eq Normatron::Filters::DumpFilter
-      subject.filters[:keep]      .should eq Normatron::Filters::KeepFilter
-      subject.filters[:remove]    .should eq Normatron::Filters::RemoveFilter
-      subject.filters[:squeeze]   .should eq Normatron::Filters::SqueezeFilter
-      subject.filters[:squish]    .should eq Normatron::Filters::SquishFilter
-      subject.filters[:strip]     .should eq Normatron::Filters::StripFilter
-      subject.filters[:swapcase]  .should eq Normatron::Filters::SwapcaseFilter
-      subject.filters[:titleize]  .should eq Normatron::Filters::TitleizeFilter
-      subject.filters[:underscore].should eq Normatron::Filters::UnderscoreFilter
-      subject.filters[:upcase]    .should eq Normatron::Filters::UpcaseFilter
+    context "when initialized" do
+      it { subject.filters[:ascii]     .should eq Normatron::Filters::AsciiFilter }
+      it { subject.filters[:blank]     .should eq Normatron::Filters::BlankFilter }
+      it { subject.filters[:camelize]  .should eq Normatron::Filters::CamelizeFilter }
+      it { subject.filters[:capitalize].should eq Normatron::Filters::CapitalizeFilter }
+      it { subject.filters[:chomp]     .should eq Normatron::Filters::ChompFilter }
+      it { subject.filters[:dasherize] .should eq Normatron::Filters::DasherizeFilter }
+      it { subject.filters[:downcase]  .should eq Normatron::Filters::DowncaseFilter }
+      it { subject.filters[:dump]      .should eq Normatron::Filters::DumpFilter }
+      it { subject.filters[:keep]      .should eq Normatron::Filters::KeepFilter }
+      it { subject.filters[:remove]    .should eq Normatron::Filters::RemoveFilter }
+      it { subject.filters[:squeeze]   .should eq Normatron::Filters::SqueezeFilter }
+      it { subject.filters[:squish]    .should eq Normatron::Filters::SquishFilter }
+      it { subject.filters[:strip]     .should eq Normatron::Filters::StripFilter }
+      it { subject.filters[:swapcase]  .should eq Normatron::Filters::SwapcaseFilter }
+      it { subject.filters[:titleize]  .should eq Normatron::Filters::TitleizeFilter }
+      it { subject.filters[:underscore].should eq Normatron::Filters::UnderscoreFilter }
+      it { subject.filters[:upcase]    .should eq Normatron::Filters::UpcaseFilter }
     end
 
-    it "should allow add new filters" do
-      subject.filters[:smile] = MyFilters::SmileFilter
-      subject.filters[:smile].should eq MyFilters::SmileFilter
+    context "when new filter is added" do
+      it "module filter should be set" do
+        subject.filters[:smile] = MyFilters::SmileFilter
+        subject.filters[:smile].should eq MyFilters::SmileFilter
+      end
+
+      it "lambda filter should be set" do
+        lambda_filter = lambda { |input, value| input << value }
+        subject.filters[:append] = lambda_filter
+        subject.filters[:append].should eq lambda_filter
+      end
     end
 
     it "should allow remove filters" do
