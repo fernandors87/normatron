@@ -5,6 +5,6 @@ require 'normatron/filters/squeeze_filter'
 
 describe Normatron::Filters::SqueezeFilter do
   it_should_behave_like "string processor"
-  it_should_behave_like "evaluable filter", ["1 22  333   4444    "        ], "1 2 3 4 "
-  it_should_behave_like "evaluable filter", ["1 22  333   4444    ", "2-3 "], "1 2 3 4444 "
+  it { should evaluate("squeezing: hells bells").to("squezing: hels bels" ) }
+  it { should evaluate("squeezing: hells bells").to("squeezing: hels bels").with("l") }
 end

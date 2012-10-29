@@ -2,6 +2,5 @@
 doc/
 spec/.rspec
 test/
-.yardopts
 *.gem
 *.textile

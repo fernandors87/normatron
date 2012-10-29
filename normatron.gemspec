@@ -17,7 +17,7 @@ Gem::Specification.new do |s|
     This gem inhibits the work of having to override attributes or create a specific method to perform most of the normalizations.
   EOF
 
-  s.files = Dir["{lib}/**/*"] + ["MIT-LICENSE", "Rakefile", "README.md"]
+  s.files = Dir["{lib}/**/*"] + %W[MIT-LICENSE Rakefile README.md .yardopts]
   s.test_files = Dir["spec/**/*"]
 
   s.add_dependency "activerecord",  ">= 3.2.0"

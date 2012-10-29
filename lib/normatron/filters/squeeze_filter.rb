@@ -1,26 +1,34 @@
 module Normatron
   module Filters
+    
+    ##
+    # Remove multiple occurences of the same character.
+    #
+    # If no option are given, all runs of identical characters are replaced by a single character.
+    # 
+    # @example Out of box
+    #   SqueezeFilter.evaluate("yellow    moon")             #=> "yelow mon"
+    #   SqueezeFilter.evaluate("  now   is  the", " ")       #=> " now is the"
+    #   SqueezeFilter.evaluate("putters shoot balls", "m-z") #=> "puters shot balls"
+    #
+    # @example Using as ActiveRecord::Base normalizer
+    #   normalize :attribute_a, :with => [:custom_filter, :squeeze]
+    #   normalize :attribute_b, :with => [:custom_filter, [:squeeze, "a-f"]]
+    #   normalize :attribute_c, :with => [:custom_filter, {:squeeze => ["a-f"]}]
+    #
+    # @see http://www.ruby-doc.org/core-1.9.3/String.html#method-i-squeeze String#squeeze
+    # @see SquishFilter Normatron::Filters::SquishFilter
+    # @see StripFilter  Normatron::Filters::StripFilter
     module SqueezeFilter
 
       ##
-      # Remove multiple occurences of the same character.
-      # If no option are given, all runs of identical characters are replaced by a single character.
-      # 
-      # @example
-      #   SqueezeFilter.evaluate("yellow    moon")               #=> "yelow mon"
-      #   SqueezeFilter.evaluate("  now   is  the", " ")         #=> " now is the"
-      #   SqueezeFilter.evaluate("putters shoot balls", "m-z")   #=> "puters shot balls"
+      # Performs input conversion according to filter requirements.
       #
-      # @example Using as ActiveRecord::Base normalizer
-      #   normalize :attribute_a, :with => [:custom_filter, :squeeze]
-      #   normalize :attribute_b, :with => [:custom_filter, [:squeeze, "a-f"]]
-      #   normalize :attribute_c, :with => [:custom_filter, {:squeeze => ["a-f"]}]
+      # This method returns the object itself when the first argument is not a String.
       #
-      # @param [String] input A character sequence
-      # @param [[String]*] targets Characters to be affected
-      # @return [String] The clean character sequence or the object itself
-      # @see http://www.ruby-doc.org/core-1.9.3/String.html#method-i-squeeze String#squeeze
-      # @see SquishFilter Normatron::Filters::SquishFilter
+      # @param input   [String]    The String to be filtered
+      # @param targets [[String]*] Characters to be affected
+      # @return [String] A new squeezed String
       def self.evaluate(input, *targets)
         return input unless input.kind_of?(String)
         targets.any? ? input.squeeze(targets.last) : input.squeeze

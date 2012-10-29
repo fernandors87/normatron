@@ -2,25 +2,31 @@ require 'normatron/filters/helpers'
 
 module Normatron
   module Filters
+    
+    ##
+    # Capitalizes the first character of each word.
+    # 
+    # @example Out of box
+    #   TitleizeFilter.evaluate("at your will!") #=> "At Your Will!"
+    #
+    # @example Using as ActiveRecord::Base normalizer
+    #   normalize :attribute_a, :with => :titleize
+    #   normalize :attribute_b, :with => [:custom_filter, :titleize]
+    #
+    # @see http://api.rubyonrails.org/classes/ActiveSupport/Multibyte/Chars.html#method-i-titleize ActiveSupport::Multibyte::Chars#titleize
+    # @see DownFilter     Normatron::Filters::DownFilter
+    # @see SwapcaseFilter Normatron::Filters::SwapcaseFilter
+    # @see UpcaseFilter   Normatron::Filters::UpcaseFilter
     module TitleizeFilter
       extend Helpers
 
       ##
-      # Capitalizes the first character of each word.
-      # 
-      # @example
-      #   TitleizeFilter.evaluate("at your will!") #=> "At Your Will!"
+      # Performs input conversion according to filter requirements.
       #
-      # @example Using as ActiveRecord::Base normalizer
-      #   normalize :attribute_a, :with => :titleize
-      #   normalize :attribute_b, :with => [:custom_filter, :titleize]
+      # This method returns the object itself when the first argument is not a String.
       #
-      # @param [String] input A character sequence
-      # @return [String] The titleized character sequence or the object itself
-      # @see http://api.rubyonrails.org/classes/ActiveSupport/Multibyte/Chars.html#method-i-titleize ActiveSupport::Multibyte::Chars#titleize
-      # @see DownFilter Normatron::Filters::DownFilter
-      # @see SwapcaseFilter Normatron::Filters::SwapcaseFilter
-      # @see UpcaseFilter Normatron::Filters::UpcaseFilter
+      # @param input [String] The String to be filtered
+      # @return [String] A new titleized String
       def self.evaluate(input)
         input.kind_of?(String) ? mb_send(:titleize, input) : input
       end

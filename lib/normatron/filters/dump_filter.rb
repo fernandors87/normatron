@@ -1,24 +1,30 @@
 module Normatron
   module Filters
+    
+    ##
+    # Creates a literal string representation with all nonprinting characters replaced by @\\n@ notation and all
+    # special characters escaped.
+    # 
+    # @example Out of box
+    #   DumpFilter.evaluate("I'm not\na \"clubber\"...") #=> "\"I'm not\\na \\\"clubber\\\"...\""
+    #   DumpFilter.evaluate("I'm not\na \"clubber\"...") #== '"I\'m not\na \"clubber\"..."'
+    #   DumpFilter.evaluate('I\'m not\na "clubber"...')  #=> "\"I'm not\\\\na \\\"clubber\\\"...\""
+    #   DumpFilter.evaluate('I\'m not\na "clubber"...')  #== '"I\'m not\\\na \"clubber\"..."'
+    #
+    # @example Using as ActiveRecord::Base normalizer
+    #   normalize :attribute_a, :with => :dump
+    #   normalize :attribute_b, :with => [:custom_filter, :dump]
+    #
+    # @see http://www.ruby-doc.org/core-1.9.3/String.html#method-i-dump String#dump
     module DumpFilter
 
       ##
-      # Creates a literal string representation with all nonprinting characters
-      # replaced by <tt>\\n</tt> notation and all special characters escaped.
-      # 
-      # @example
-      #   DumpFilter.evaluate("I'm not\na \"clubber\"...") #=> "\"I'm not\\na \\\"clubber\\\"...\""
-      #   DumpFilter.evaluate("I'm not\na \"clubber\"...") #== '"I\'m not\na \"clubber\"..."'
-      #   DumpFilter.evaluate('I\'m not\na "clubber"...')  #=> "\"I'm not\\\\na \\\"clubber\\\"...\""
-      #   DumpFilter.evaluate('I\'m not\na "clubber"...')  #== '"I\'m not\\\na \"clubber\"..."'
+      # Performs input conversion according to filter requirements.
       #
-      # @example Using as ActiveRecord::Base normalizer
-      #   normalize :attribute_a, :with => :dump
-      #   normalize :attribute_b, :with => [:custom_filter, :dump]
+      # This method returns the object itself when the first argument is not a String.
       #
-      # @param [String] input A character sequence
-      # @return [String] The dumpped character sequence or the object itself
-      # @see http://www.ruby-doc.org/core-1.9.3/String.html#method-i-dump String#dump
+      # @param input [String] The String to be filtered
+      # @return [String] A new dumpped String
       def self.evaluate(input)
         input.kind_of?(String) ? input.dump : input
       end

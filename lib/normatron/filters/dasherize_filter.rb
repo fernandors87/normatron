@@ -2,21 +2,27 @@ require 'normatron/filters/helpers'
 
 module Normatron
   module Filters
+    
+    ##
+    # Replaces all underscores with dashes.
+    # 
+    # @example Out of box
+    #   DasherizeFilter.evaluate("monty_python") #=> "monty-python"
+    #
+    # @example Using as model normalizer
+    #   normalize :attribute_a, :with => :dasherize
+    #   normalize :attribute_b, :with => [:custom_filter, :dasherize]
+    #
+    # @see http://api.rubyonrails.org/classes/String.html#method-i-dasherize String#dasherize
     module DasherizeFilter
 
       ##
-      # Replaces all underscores with dashes.
-      # 
-      # @example
-      #   DasherizeFilter.evaluate("monty_python") #=> "monty-python"
+      # Performs input conversion according to filter requirements.
       #
-      # @example Using as ActiveRecord::Base normalizer
-      #   normalize :attribute_a, :with => :dasherize
-      #   normalize :attribute_b, :with => [:custom_filter, :dasherize]
+      # This method returns the object itself when the first argument is not a String.
       #
-      # @param [String] input A character sequence
-      # @return [String] The dasherized character sequence or the object itself
-      # @see http://api.rubyonrails.org/classes/String.html#method-i-dasherize String#dasherize
+      # @param  input [String] The String to be filtered
+      # @return [String] A new dasherized String
       def self.evaluate(input)
         input.kind_of?(String) ? input.dasherize : input
       end

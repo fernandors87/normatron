@@ -5,10 +5,10 @@ require 'normatron/filters/ascii_filter'
 
 describe Normatron::Filters::AsciiFilter do
   it_should_behave_like "string processor"
-  it_should_behave_like "evaluable filter", ["ÉBRIO"              ], "EBRIO"
-  it_should_behave_like "evaluable filter", ["até"                ], "ate"
-  it_should_behave_like "evaluable filter", ["cirurgião"          ], "cirurgiao"
-  it_should_behave_like "evaluable filter", ["email@domain.com"   ], "email@domain.com"
-  it_should_behave_like "evaluable filter", ["éçü&! *¬¬"          ], "ecu&! *!!"
-  it_should_behave_like "evaluable filter", ["⠋⠗⠁⠝⠉⠑"          ], "france"
+  it { should evaluate("ÉBRIO"           ).to("EBRIO"           ) }
+  it { should evaluate("até"             ).to("ate"             ) }
+  it { should evaluate("cirurgião"       ).to("cirurgiao"       ) }
+  it { should evaluate("email@domain.com").to("email@domain.com") }
+  it { should evaluate("éçü&! *¬¬"       ).to("ecu&! *!!"       ) }
+  it { should evaluate("⠋⠗⠁⠝⠉⠑"       ).to("france"          ) }
 end

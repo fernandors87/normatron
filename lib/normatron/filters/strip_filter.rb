@@ -2,29 +2,37 @@ require 'normatron/filters/helpers'
 
 module Normatron
   module Filters
+    
+    ##
+    # Removes traling and leading spaces.
+    # 
+    # @example Out of box
+    #   StripFilter.evaluate("   copy   ")      #=> "copy"
+    #   StripFilter.evaluate("   copy   ", :L)  #=> "copy   "
+    #   StripFilter.evaluate("   copy   ", :R)  #=> "   copy"
+    #   StripFilter.evaluate("   copy   ", :LR) #=> "copy"
+    #
+    # @example Using as ActiveRecord::Base normalizer
+    #   normalize :attribute_a, :with => :strip
+    #   normalize :attribute_b, :with => { :strip => :L }
+    #   normalize :attribute_c, :with => [:custom_filter, :strip]
+    #   normalize :attribute_d, :with => [:custom_filter, [:strip, :L]]
+    #   normalize :attribute_e, :with => [:custom_filter, {:strip => :R}]
+    #
+    # @see http://www.ruby-doc.org/core-1.9.3/String.html#method-i-strip String#strip
+    # @see SqueezeFilter Normatron::Filters::SqueezeFilter
+    # @see SquishFilter Normatron::Filters::SquishFilter
     module StripFilter
       extend Helpers
 
       ##
-      # Remove traling and/or leading spaces from the string.
-      # 
-      # @example
-      #   StripFilter.evaluate("   copy   ")      #=> "copy"
-      #   StripFilter.evaluate("   copy   ", :L)  #=> "copy   "
-      #   StripFilter.evaluate("   copy   ", :R)  #=> "   copy"
-      #   StripFilter.evaluate("   copy   ", :LR) #=> "copy"
+      # Performs input conversion according to filter requirements.
       #
-      # @example Using as ActiveRecord::Base normalizer
-      #   normalize :attribute_a, :with => :strip
-      #   normalize :attribute_b, :with => { :strip => :L }
-      #   normalize :attribute_c, :with => [:custom_filter, :strip]
-      #   normalize :attribute_d, :with => [:custom_filter, [:strip, :L]]
-      #   normalize :attribute_e, :with => [:custom_filter, {:strip => :R}]
+      # This method returns the object itself when the first argument is not a String.
       #
-      # @param [String] input A character sequence
-      # @param [Symbol] edges :L to strip trailing spaces, :R for leading spaces and :LR for both
-      # @return [String] The character sequence without trailing and leading spaces or the object itself
-      # @see http://www.ruby-doc.org/core-1.9.3/String.html#method-i-strip String#strip
+      # @param input [String] The String to be filtered
+      # @param edges [Symbol] @:L@ to strip trailing spaces, @:R@ for leading spaces or @:LR@ for both
+      # @return [String] A new stripped String
       def self.evaluate(input, edges=:LR)
         return input unless input.kind_of?(String)
         

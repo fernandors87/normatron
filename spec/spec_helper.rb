@@ -3,6 +3,10 @@
 require "active_record"
 Dir[File.dirname(__FILE__) + "/support/**/*.rb"].each { |f| require f }
 
+RSpec.configure do |config|
+  config.include(FilterMatcher)
+end
+
 shared_examples "evaluable filter" do |args, expected|
   if args.size == 1
     it { subject.send(:evaluate, args[0]).should_not equal expected }
