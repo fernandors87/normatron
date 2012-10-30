@@ -4,11 +4,12 @@ require 'spec_helper'
 require 'normatron/filters/capitalize_filter'
 
 describe Normatron::Filters::CapitalizeFilter do
-  it_should_behave_like "string processor"
-  it_should_behave_like "evaluable filter", ["i love winter" ], "I love winter"
-  it_should_behave_like "evaluable filter", ["I LOVE WINTER" ], "I love winter"
-  it_should_behave_like "evaluable filter", ["ó, vida cruel!"], "Ó, vida cruel!"
-  it_should_behave_like "evaluable filter", ["Ó, VIDA CRUEL!"], "Ó, vida cruel!"
-  it_should_behave_like "evaluable filter", ["1 minute"      ], "1 minute"
-  it_should_behave_like "evaluable filter", ["1 MINUTE"      ], "1 minute"
+  it { should evaluate("i love winter" ).to("I love winter" ) }
+  it { should evaluate("I LOVE WINTER" ).to("I love winter" ) }
+  it { should evaluate("ó, vida cruel!").to("Ó, vida cruel!") }
+  it { should evaluate("Ó, VIDA CRUEL!").to("Ó, vida cruel!") }
+  it { should evaluate("1 minute"      ).to("1 minute"      ) }
+  it { should evaluate("1 MINUTE"      ).to("1 minute"      ) }
+  it { should evaluate(100             ).to(100             ) }
+  it { should evaluate(nil             ).to(nil             ) }
 end

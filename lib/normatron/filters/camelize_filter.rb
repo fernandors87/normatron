@@ -40,20 +40,16 @@ module Normatron
       #
       # This method returns the object itself when the first argument is not a String.
       #
-      # @param  input             [String] The String to be filtered
-      # @param  first_letter_case [Symbol] @:lower@ for lowerCamelCase or @:upper@ for UpperCamelCase
+      # @param  input [String] The String to be filtered
+      # @param  camel [Symbol] @:lower@ for lowerCamelCase or @:upper@ for UpperCamelCase
       # @return [String] A new camelized String
-      def self.evaluate(input, first_letter_case = :upper)
+      def self.evaluate(input, camel = :upper)
         return input unless input.kind_of?(String)
 
-        if first_letter_case == :upper
-          string = input.sub(/^[\p{Ll}\d]*/u) { inflections.acronyms[$&] || mb_send(:capitalize, $&) }
-        else
-          string = input.sub(/^(?:#{inflections.acronym_regex}(?=\b|[\p{Lu}_])|\w)/u) { mb_send(:downcase, $&) }
-        end
-        string.gsub(/(?:_|(\/))([\p{Ll}\d]*)/ui) { "#{$1}#{inflections.acronyms[$2] || mb_send(:capitalize, $2) }" }.gsub('/', '::')
+        string = mb_send(:downcase, input)
+        string.sub!(/^[^_|\/]+/) { camel == :upper ? acronyms[$&] || mb_send(:capitalize, $&) : $& }
+        string.gsub(/(?:(\/)|_)([^\/|_]+)/) { "#{$1}#{acronyms[$2] || mb_send(:capitalize, $2)}" }.gsub("/", "::")
       end
     end
   end
 end
-

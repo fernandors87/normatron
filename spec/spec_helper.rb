@@ -1,10 +1,11 @@
 # encoding: UTF-8
 
-require "active_record"
+require "normatron"
 Dir[File.dirname(__FILE__) + "/support/**/*.rb"].each { |f| require f }
 
 RSpec.configure do |config|
-  config.include(FilterMatcher)
+  config.include(FilterMatchers)
+  config.order = "random"
 end
 
 shared_examples "evaluable filter" do |args, expected|

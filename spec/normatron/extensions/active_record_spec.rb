@@ -15,6 +15,7 @@ describe Normatron::Extensions::ActiveRecord do
     ActiveRecord.send(:remove_const, :Base)
     load 'active_record/base.rb'
   end
+  pending "'after' is causing a problem to test configuration file --seed 52000"
 
   describe :normalize do
     subject { model }

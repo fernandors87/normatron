@@ -1,4 +1,5 @@
 .yardoc/
+.rspec
 doc/
 spec/.rspec
 test/

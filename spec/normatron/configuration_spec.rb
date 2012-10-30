@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'normatron/configuration'
 
 describe Normatron::Configuration do
 
