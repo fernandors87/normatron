@@ -1,9 +1,13 @@
 # encoding: UTF-8
 
 require 'spec_helper'
-require 'normatron/filters/dasherize_filter'
 
-describe Normatron::Filters::DasherizeFilter do
-  it_should_behave_like "string processor"
-  it_should_behave_like "evaluable filter", ["string_inflections"], "string-inflections"
+module Normatron
+  module Filters
+    describe DasherizeFilter do
+      it { should evaluate("string_inflections").to("string-inflections") }
+      it { should evaluate(100                 ).to(100                 ) }
+      it { should evaluate(nil                 ).to(nil                 ) }
+    end
+  end
 end

@@ -6,6 +6,7 @@ module FilterMatchers
   class EvaluateMatcher
     def initialize(input)
       @input = input
+      @constraints = Hash[:value, true, :type, true, :identity, true]
       self
     end
 
@@ -16,6 +17,11 @@ module FilterMatchers
 
     def with(*args)
       @args = args
+      self
+    end
+
+    def constraints(constraint)
+      @constraints.merge! constraint
       self
     end
 
@@ -63,11 +69,11 @@ module FilterMatchers
     end
 
     def get_failure_reason
-      if @got != @expected
+      if @constraints[:value] && (@got != @expected) 
         :value
-      elsif !@got.kind_of?(@input.class)
+      elsif @constraints[:type] && !@got.kind_of?(@input.class)
         :type
-      elsif @got.equal?(@input) && @got.kind_of?(String)
+      elsif @constraints[:identity] && @got.equal?(@input) && @got.kind_of?(String)
         :identity
       end
     end

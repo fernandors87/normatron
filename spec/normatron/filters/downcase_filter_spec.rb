@@ -1,10 +1,14 @@
 # encoding: UTF-8
 
 require 'spec_helper'
-require 'normatron/filters/downcase_filter'
 
-describe Normatron::Filters::DowncaseFilter do
-  it_should_behave_like "string processor"
-  it_should_behave_like "evaluable filter", ["caçador"], "caçador"
-  it_should_behave_like "evaluable filter", ["CAÇADOR"], "caçador"
-end
+module Normatron
+  module Filters
+    describe DowncaseFilter do
+      it { should evaluate("caçador").to("caçador") }
+      it { should evaluate("CAÇADOR").to("caçador") }
+      it { should evaluate(100      ).to(100      ) }
+      it { should evaluate(nil      ).to(nil      ) }
+    end
+  end
+end    

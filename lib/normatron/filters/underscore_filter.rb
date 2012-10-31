@@ -39,12 +39,12 @@ module Normatron
       def self.evaluate(input)
         return input unless input.kind_of?(String)
 
-        input.gsub!(/::/, '/')
-        input.gsub!(/(?:([\p{Ll}\p{Lu}\d])|^)(#{acronym_regex})(?=\b|[^\p{Ll}])/u) { "#{$1}#{$1 && '_'}#{mb_send(:downcase, $2)}" }
-        input.gsub!(/([\p{Lu}\d]+)([\p{Lu}][\p{Ll}])/u,'\1_\2')
-        input.gsub!(/([\p{Ll}\d])([\p{Lu}])/u,'\1_\2')
-        input.tr!("-", "_")
-        mb_send(:downcase, input)
+        string = input.gsub(/::/, '/')
+        string.gsub!(/#{acronym_regex}/) { "_#{$&}_".downcase }
+        string.gsub!(/\b_|_\b/, "")
+        string.gsub!(/([^\/\b_])(?=[\p{Lu}])/u) { "#{$&}_" }
+        string.tr!("-", "_")
+        mb_send(:downcase, string)
       end
     end
   end

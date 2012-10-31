@@ -1,12 +1,16 @@
 # encoding: UTF-8
 
 require 'spec_helper'
-require 'normatron/filters/strip_filter'
 
-describe Normatron::Filters::StripFilter do
-  it_should_behave_like "string processor"
-  it_should_behave_like "evaluable filter", ["    to anywhere    "     ], "to anywhere"
-  it_should_behave_like "evaluable filter", ["    to anywhere    ", :L ], "to anywhere    "
-  it_should_behave_like "evaluable filter", ["    to anywhere    ", :R ], "    to anywhere"
-  it_should_behave_like "evaluable filter", ["    to anywhere    ", :LR], "to anywhere"
-end
+module Normatron
+  module Filters
+    describe StripFilter do
+      it { should evaluate("    to anywhere    ").to("to anywhere"    )           }
+      it { should evaluate("    to anywhere    ").to("to anywhere    ").with(:L ) }
+      it { should evaluate("    to anywhere    ").to("    to anywhere").with(:R ) }
+      it { should evaluate("    to anywhere    ").to("to anywhere"    ).with(:LR) }
+      it { should evaluate(100                  ).to(100              )           }
+      it { should evaluate(nil                  ).to(nil              )           }
+    end
+  end
+end    

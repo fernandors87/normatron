@@ -1,12 +1,16 @@
 # encoding: UTF-8
 
 require 'spec_helper'
-require 'normatron/filters/squish_filter'
 
-describe Normatron::Filters::SquishFilter do
-  it_should_behave_like "string processor"
-  it_should_behave_like "evaluable filter", ["  Friday 05 October 2012  "     ], "Friday 05 October 2012"
-  it_should_behave_like "evaluable filter", ["Friday   05   October   2012"   ], "Friday 05 October 2012"
-  it_should_behave_like "evaluable filter", ["Friday \n05 \nOctober \n2012"   ], "Friday 05 October 2012"
-  it_should_behave_like "evaluable filter", ["  Friday  05 \nOctober  2012   "], "Friday 05 October 2012"
-end
+module Normatron
+  module Filters
+    describe SquishFilter do
+      it { should evaluate("  Friday 05 October 2012  "     ).to("Friday 05 October 2012") }
+      it { should evaluate("Friday   05   October   2012"   ).to("Friday 05 October 2012") }
+      it { should evaluate("Friday \n05 \nOctober \n2012"   ).to("Friday 05 October 2012") }
+      it { should evaluate("  Friday  05 \nOctober  2012   ").to("Friday 05 October 2012") }
+      it { should evaluate(100                              ).to(100                     ) }
+      it { should evaluate(nil                              ).to(nil                     ) }
+    end
+  end
+end    

@@ -1,7 +1,6 @@
 # encoding: UTF-8
 
 require 'spec_helper'
-require 'normatron/filters/camelize_filter'
 
 module Normatron
   module Filters
@@ -93,10 +92,10 @@ module Normatron
           inflections.acronyms.delete("doctype")
         end
 
-        it { should evaluate("http_address/ssl/xml_file/doctype").to("HTTPAddress::SSL::XmlFile::docType") }
-        it { should evaluate("http_address/ssl/xml_file/doctype").to("httpAddress::SSL::XmlFile::docType").with(:lower) }
-        it { should evaluate("doctype_stop/run_ssl/xml/mix_http").to("docTypeStop::RunSSL::Xml::MixHTTP" ) }
-        it { should evaluate("doctype_stop/run_ssl/xml/mix_http").to("doctypeStop::RunSSL::Xml::MixHTTP" ).with(:lower) }
+        it { should evaluate("http_address/ssl_lib/xml_file/doctype").to("HTTPAddress::SSLLib::XmlFile::docType") }
+        it { should evaluate("http_address/ssl_lib/xml_file/doctype").to("httpAddress::SSLLib::XmlFile::docType").with(:lower) }
+        it { should evaluate("doctype_stop/run_ssl/xml/mix_http"    ).to("docTypeStop::RunSSL::Xml::MixHTTP"    ) }
+        it { should evaluate("doctype_stop/run_ssl/xml/mix_http"    ).to("doctypeStop::RunSSL::Xml::MixHTTP"    ).with(:lower) }
       end
     end
   end

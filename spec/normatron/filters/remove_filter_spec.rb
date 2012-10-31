@@ -1,86 +1,92 @@
 # encoding: UTF-8
 
 require 'spec_helper'
-require 'normatron/filters/remove_filter'
 
-describe Normatron::Filters::RemoveFilter do
-  it_should_behave_like "string processor"
-  it_should_behave_like "character cleaner", :remove, [:Graph]
-  it_should_behave_like "character cleaner", :remove, [:Punct]
-  it_should_behave_like "character cleaner", :remove, [:Upper]
-  it_should_behave_like "character cleaner", :remove, [:Word]
-  it_should_behave_like "character cleaner", :remove, [:Latin]
-  it_should_behave_like "character cleaner", :remove, [:L]
-  it_should_behave_like "character cleaner", :remove, [:M]
-  it_should_behave_like "character cleaner", :remove, [:N]
-  it_should_behave_like "character cleaner", :remove, [:P]
-  it_should_behave_like "character cleaner", :remove, [:S]
-  it_should_behave_like "character cleaner", :remove, [:Z]
-  it_should_behave_like "character cleaner", :remove, [:C]
-  it_should_behave_like "character cleaner", :remove, [:Graph, :Punct]
-  it_should_behave_like "character cleaner", :remove, [:Graph, :Upper]
-  it_should_behave_like "character cleaner", :remove, [:Graph, :Word]
-  it_should_behave_like "character cleaner", :remove, [:Graph, :Latin]
-  it_should_behave_like "character cleaner", :remove, [:Graph, :L]
-  it_should_behave_like "character cleaner", :remove, [:Graph, :M]
-  it_should_behave_like "character cleaner", :remove, [:Graph, :N]
-  it_should_behave_like "character cleaner", :remove, [:Graph, :P]
-  it_should_behave_like "character cleaner", :remove, [:Graph, :S]
-  it_should_behave_like "character cleaner", :remove, [:Graph, :Z]
-  it_should_behave_like "character cleaner", :remove, [:Graph, :C]
-  it_should_behave_like "character cleaner", :remove, [:Punct, :Upper]
-  it_should_behave_like "character cleaner", :remove, [:Punct, :Word]
-  it_should_behave_like "character cleaner", :remove, [:Punct, :Latin]
-  it_should_behave_like "character cleaner", :remove, [:Punct, :L]
-  it_should_behave_like "character cleaner", :remove, [:Punct, :M]
-  it_should_behave_like "character cleaner", :remove, [:Punct, :N]
-  it_should_behave_like "character cleaner", :remove, [:Punct, :P]
-  it_should_behave_like "character cleaner", :remove, [:Punct, :S]
-  it_should_behave_like "character cleaner", :remove, [:Punct, :Z]
-  it_should_behave_like "character cleaner", :remove, [:Punct, :C]
-  it_should_behave_like "character cleaner", :remove, [:Upper, :Word]
-  it_should_behave_like "character cleaner", :remove, [:Upper, :Latin]
-  it_should_behave_like "character cleaner", :remove, [:Upper, :L]
-  it_should_behave_like "character cleaner", :remove, [:Upper, :M]
-  it_should_behave_like "character cleaner", :remove, [:Upper, :N]
-  it_should_behave_like "character cleaner", :remove, [:Upper, :P]
-  it_should_behave_like "character cleaner", :remove, [:Upper, :S]
-  it_should_behave_like "character cleaner", :remove, [:Upper, :Z]
-  it_should_behave_like "character cleaner", :remove, [:Upper, :C]
-  it_should_behave_like "character cleaner", :remove, [:Word, :Latin]
-  it_should_behave_like "character cleaner", :remove, [:Word, :L]
-  it_should_behave_like "character cleaner", :remove, [:Word, :M]
-  it_should_behave_like "character cleaner", :remove, [:Word, :N]
-  it_should_behave_like "character cleaner", :remove, [:Word, :P]
-  it_should_behave_like "character cleaner", :remove, [:Word, :S]
-  it_should_behave_like "character cleaner", :remove, [:Word, :Z]
-  it_should_behave_like "character cleaner", :remove, [:Word, :C]
-  it_should_behave_like "character cleaner", :remove, [:Latin, :L]
-  it_should_behave_like "character cleaner", :remove, [:Latin, :M]
-  it_should_behave_like "character cleaner", :remove, [:Latin, :N]
-  it_should_behave_like "character cleaner", :remove, [:Latin, :P]
-  it_should_behave_like "character cleaner", :remove, [:Latin, :S]
-  it_should_behave_like "character cleaner", :remove, [:Latin, :Z]
-  it_should_behave_like "character cleaner", :remove, [:Latin, :C]
-  it_should_behave_like "character cleaner", :remove, [:L, :M]
-  it_should_behave_like "character cleaner", :remove, [:L, :N]
-  it_should_behave_like "character cleaner", :remove, [:L, :P]
-  it_should_behave_like "character cleaner", :remove, [:L, :S]
-  it_should_behave_like "character cleaner", :remove, [:L, :Z]
-  it_should_behave_like "character cleaner", :remove, [:L, :C]
-  it_should_behave_like "character cleaner", :remove, [:M, :N]
-  it_should_behave_like "character cleaner", :remove, [:M, :P]
-  it_should_behave_like "character cleaner", :remove, [:M, :S]
-  it_should_behave_like "character cleaner", :remove, [:M, :Z]
-  it_should_behave_like "character cleaner", :remove, [:M, :C]
-  it_should_behave_like "character cleaner", :remove, [:N, :P]
-  it_should_behave_like "character cleaner", :remove, [:N, :S]
-  it_should_behave_like "character cleaner", :remove, [:N, :Z]
-  it_should_behave_like "character cleaner", :remove, [:N, :C]
-  it_should_behave_like "character cleaner", :remove, [:P, :S]
-  it_should_behave_like "character cleaner", :remove, [:P, :Z]
-  it_should_behave_like "character cleaner", :remove, [:P, :C]
-  it_should_behave_like "character cleaner", :remove, [:S, :Z]
-  it_should_behave_like "character cleaner", :remove, [:S, :C]
-  it_should_behave_like "character cleaner", :remove, [:Z, :C]
-end
+module Normatron
+  module Filters
+    describe RemoveFilter do
+      let(:word) {"ᰄ긚 ᧔瑤л꽥๏ ѨDꨥ\aՇ謬ꗀᶆᵆ쳻ῼἬ鿃ႍꥈᤫ꙲⅟౮ⅰ⅘༌_゠⟦〉⸠›⸓⌟⅂₧௹¨⣭  \u2028\u2029\u008C\u0011⁠\uA7E5" }
+
+      it { should remove(:Graph        ).from(word) }
+      it { should remove(:Punct        ).from(word) }
+      it { should remove(:Upper        ).from(word) }
+      it { should remove(:Word         ).from(word) }
+      it { should remove(:Latin        ).from(word) }
+      it { should remove(:L            ).from(word) }
+      it { should remove(:M            ).from(word) }
+      it { should remove(:N            ).from(word) }
+      it { should remove(:P            ).from(word) }
+      it { should remove(:S            ).from(word) }
+      it { should remove(:Z            ).from(word) }
+      it { should remove(:C            ).from(word) }
+      it { should remove(:Graph, :Punct).from(word) }
+      it { should remove(:Graph, :Upper).from(word) }
+      it { should remove(:Graph, :Word ).from(word) }
+      it { should remove(:Graph, :Latin).from(word) }
+      it { should remove(:Graph, :L    ).from(word) }
+      it { should remove(:Graph, :M    ).from(word) }
+      it { should remove(:Graph, :N    ).from(word) }
+      it { should remove(:Graph, :P    ).from(word) }
+      it { should remove(:Graph, :S    ).from(word) }
+      it { should remove(:Graph, :Z    ).from(word) }
+      it { should remove(:Graph, :C    ).from(word) }
+      it { should remove(:Punct, :Upper).from(word) }
+      it { should remove(:Punct, :Word ).from(word) }
+      it { should remove(:Punct, :Latin).from(word) }
+      it { should remove(:Punct, :L    ).from(word) }
+      it { should remove(:Punct, :M    ).from(word) }
+      it { should remove(:Punct, :N    ).from(word) }
+      it { should remove(:Punct, :P    ).from(word) }
+      it { should remove(:Punct, :S    ).from(word) }
+      it { should remove(:Punct, :Z    ).from(word) }
+      it { should remove(:Punct, :C    ).from(word) }
+      it { should remove(:Upper, :Word ).from(word) }
+      it { should remove(:Upper, :Latin).from(word) }
+      it { should remove(:Upper, :L    ).from(word) }
+      it { should remove(:Upper, :M    ).from(word) }
+      it { should remove(:Upper, :N    ).from(word) }
+      it { should remove(:Upper, :P    ).from(word) }
+      it { should remove(:Upper, :S    ).from(word) }
+      it { should remove(:Upper, :Z    ).from(word) }
+      it { should remove(:Upper, :C    ).from(word) }
+      it { should remove(:Word, :Latin ).from(word) }
+      it { should remove(:Word, :L     ).from(word) }
+      it { should remove(:Word, :M     ).from(word) }
+      it { should remove(:Word, :N     ).from(word) }
+      it { should remove(:Word, :P     ).from(word) }
+      it { should remove(:Word, :S     ).from(word) }
+      it { should remove(:Word, :Z     ).from(word) }
+      it { should remove(:Word, :C     ).from(word) }
+      it { should remove(:Latin, :L    ).from(word) }
+      it { should remove(:Latin, :M    ).from(word) }
+      it { should remove(:Latin, :N    ).from(word) }
+      it { should remove(:Latin, :P    ).from(word) }
+      it { should remove(:Latin, :S    ).from(word) }
+      it { should remove(:Latin, :Z    ).from(word) }
+      it { should remove(:Latin, :C    ).from(word) }
+      it { should remove(:L, :M        ).from(word) }
+      it { should remove(:L, :N        ).from(word) }
+      it { should remove(:L, :P        ).from(word) }
+      it { should remove(:L, :S        ).from(word) }
+      it { should remove(:L, :Z        ).from(word) }
+      it { should remove(:L, :C        ).from(word) }
+      it { should remove(:M, :N        ).from(word) }
+      it { should remove(:M, :P        ).from(word) }
+      it { should remove(:M, :S        ).from(word) }
+      it { should remove(:M, :Z        ).from(word) }
+      it { should remove(:M, :C        ).from(word) }
+      it { should remove(:N, :P        ).from(word) }
+      it { should remove(:N, :S        ).from(word) }
+      it { should remove(:N, :Z        ).from(word) }
+      it { should remove(:N, :C        ).from(word) }
+      it { should remove(:P, :S        ).from(word) }
+      it { should remove(:P, :Z        ).from(word) }
+      it { should remove(:P, :C        ).from(word) }
+      it { should remove(:S, :Z        ).from(word) }
+      it { should remove(:S, :C        ).from(word) }
+      it { should remove(:Z, :C        ).from(word) }
+      it { should evaluate(100         ).to(100   ) }
+      it { should evaluate(nil         ).to(nil   ) }
+    end
+  end
+end    

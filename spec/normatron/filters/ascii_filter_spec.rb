@@ -13,8 +13,6 @@ module Normatron
       it { should evaluate("⠋⠗⠁⠝⠉⠑"       ).to("france"          ) }
       it { should evaluate(100               ).to(100               ) }
       it { should evaluate(nil               ).to(nil               ) }
-
-      pending "Open a pull request to Stringex.\n'¬' (not sign) character is not evaluating as expected (minus sign or tilde)."
     end
   end
 end

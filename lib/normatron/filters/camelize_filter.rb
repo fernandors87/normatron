@@ -48,7 +48,8 @@ module Normatron
 
         string = mb_send(:downcase, input)
         string.sub!(/^[^_|\/]+/) { camel == :upper ? acronyms[$&] || mb_send(:capitalize, $&) : $& }
-        string.gsub(/(?:(\/)|_)([^\/|_]+)/) { "#{$1}#{acronyms[$2] || mb_send(:capitalize, $2)}" }.gsub("/", "::")
+        string.gsub!(/(?:(\/)|_)([^\/|_]+)/) { "#{$1}#{acronyms[$2] || mb_send(:capitalize, $2)}" }
+        string.gsub("/", "::")
       end
     end
   end

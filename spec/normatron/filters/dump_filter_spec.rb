@@ -1,10 +1,14 @@
 # encoding: UTF-8
 
 require 'spec_helper'
-require 'normatron/filters/dump_filter'
 
-describe Normatron::Filters::DumpFilter do
-  it_should_behave_like "string processor"
-  it_should_behave_like "evaluable filter", ["First \n Time"], '"First \n Time"'
-  it_should_behave_like "evaluable filter", ['First \n Time'], '"First \\\n Time"'
-end
+module Normatron
+  module Filters
+    describe DumpFilter do
+      it { should evaluate("First \n Time").to('"First \n Time"'  ) }
+      it { should evaluate('First \n Time').to('"First \\\n Time"') }
+      it { should evaluate(100            ).to(100                ) }
+      it { should evaluate(nil            ).to(nil                ) }
+    end
+  end
+end    

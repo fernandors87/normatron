@@ -1,86 +1,92 @@
 # encoding: UTF-8
 
 require 'spec_helper'
-require 'normatron/filters/keep_filter'
 
-describe Normatron::Filters::KeepFilter do
-  it_should_behave_like "string processor"
-  it_should_behave_like "character cleaner", :keep, [:Graph]
-  it_should_behave_like "character cleaner", :keep, [:Punct]
-  it_should_behave_like "character cleaner", :keep, [:Upper]
-  it_should_behave_like "character cleaner", :keep, [:Word]
-  it_should_behave_like "character cleaner", :keep, [:Latin]
-  it_should_behave_like "character cleaner", :keep, [:L]
-  it_should_behave_like "character cleaner", :keep, [:M]
-  it_should_behave_like "character cleaner", :keep, [:N]
-  it_should_behave_like "character cleaner", :keep, [:P]
-  it_should_behave_like "character cleaner", :keep, [:S]
-  it_should_behave_like "character cleaner", :keep, [:Z]
-  it_should_behave_like "character cleaner", :keep, [:C]
-  it_should_behave_like "character cleaner", :keep, [:Graph, :Punct]
-  it_should_behave_like "character cleaner", :keep, [:Graph, :Upper]
-  it_should_behave_like "character cleaner", :keep, [:Graph, :Word]
-  it_should_behave_like "character cleaner", :keep, [:Graph, :Latin]
-  it_should_behave_like "character cleaner", :keep, [:Graph, :L]
-  it_should_behave_like "character cleaner", :keep, [:Graph, :M]
-  it_should_behave_like "character cleaner", :keep, [:Graph, :N]
-  it_should_behave_like "character cleaner", :keep, [:Graph, :P]
-  it_should_behave_like "character cleaner", :keep, [:Graph, :S]
-  it_should_behave_like "character cleaner", :keep, [:Graph, :Z]
-  it_should_behave_like "character cleaner", :keep, [:Graph, :C]
-  it_should_behave_like "character cleaner", :keep, [:Punct, :Upper]
-  it_should_behave_like "character cleaner", :keep, [:Punct, :Word]
-  it_should_behave_like "character cleaner", :keep, [:Punct, :Latin]
-  it_should_behave_like "character cleaner", :keep, [:Punct, :L]
-  it_should_behave_like "character cleaner", :keep, [:Punct, :M]
-  it_should_behave_like "character cleaner", :keep, [:Punct, :N]
-  it_should_behave_like "character cleaner", :keep, [:Punct, :P]
-  it_should_behave_like "character cleaner", :keep, [:Punct, :S]
-  it_should_behave_like "character cleaner", :keep, [:Punct, :Z]
-  it_should_behave_like "character cleaner", :keep, [:Punct, :C]
-  it_should_behave_like "character cleaner", :keep, [:Upper, :Word]
-  it_should_behave_like "character cleaner", :keep, [:Upper, :Latin]
-  it_should_behave_like "character cleaner", :keep, [:Upper, :L]
-  it_should_behave_like "character cleaner", :keep, [:Upper, :M]
-  it_should_behave_like "character cleaner", :keep, [:Upper, :N]
-  it_should_behave_like "character cleaner", :keep, [:Upper, :P]
-  it_should_behave_like "character cleaner", :keep, [:Upper, :S]
-  it_should_behave_like "character cleaner", :keep, [:Upper, :Z]
-  it_should_behave_like "character cleaner", :keep, [:Upper, :C]
-  it_should_behave_like "character cleaner", :keep, [:Word, :Latin]
-  it_should_behave_like "character cleaner", :keep, [:Word, :L]
-  it_should_behave_like "character cleaner", :keep, [:Word, :M]
-  it_should_behave_like "character cleaner", :keep, [:Word, :N]
-  it_should_behave_like "character cleaner", :keep, [:Word, :P]
-  it_should_behave_like "character cleaner", :keep, [:Word, :S]
-  it_should_behave_like "character cleaner", :keep, [:Word, :Z]
-  it_should_behave_like "character cleaner", :keep, [:Word, :C]
-  it_should_behave_like "character cleaner", :keep, [:Latin, :L]
-  it_should_behave_like "character cleaner", :keep, [:Latin, :M]
-  it_should_behave_like "character cleaner", :keep, [:Latin, :N]
-  it_should_behave_like "character cleaner", :keep, [:Latin, :P]
-  it_should_behave_like "character cleaner", :keep, [:Latin, :S]
-  it_should_behave_like "character cleaner", :keep, [:Latin, :Z]
-  it_should_behave_like "character cleaner", :keep, [:Latin, :C]
-  it_should_behave_like "character cleaner", :keep, [:L, :M]
-  it_should_behave_like "character cleaner", :keep, [:L, :N]
-  it_should_behave_like "character cleaner", :keep, [:L, :P]
-  it_should_behave_like "character cleaner", :keep, [:L, :S]
-  it_should_behave_like "character cleaner", :keep, [:L, :Z]
-  it_should_behave_like "character cleaner", :keep, [:L, :C]
-  it_should_behave_like "character cleaner", :keep, [:M, :N]
-  it_should_behave_like "character cleaner", :keep, [:M, :P]
-  it_should_behave_like "character cleaner", :keep, [:M, :S]
-  it_should_behave_like "character cleaner", :keep, [:M, :Z]
-  it_should_behave_like "character cleaner", :keep, [:M, :C]
-  it_should_behave_like "character cleaner", :keep, [:N, :P]
-  it_should_behave_like "character cleaner", :keep, [:N, :S]
-  it_should_behave_like "character cleaner", :keep, [:N, :Z]
-  it_should_behave_like "character cleaner", :keep, [:N, :C]
-  it_should_behave_like "character cleaner", :keep, [:P, :S]
-  it_should_behave_like "character cleaner", :keep, [:P, :Z]
-  it_should_behave_like "character cleaner", :keep, [:P, :C]
-  it_should_behave_like "character cleaner", :keep, [:S, :Z]
-  it_should_behave_like "character cleaner", :keep, [:S, :C]
-  it_should_behave_like "character cleaner", :keep, [:Z, :C]
-end
+module Normatron
+  module Filters
+    describe KeepFilter do
+      let(:word) {"ᰄ긚 ᧔瑤л꽥๏ ѨDꨥ\aՇ謬ꗀᶆᵆ쳻ῼἬ鿃ႍꥈᤫ꙲⅟౮ⅰ⅘༌_゠⟦〉⸠›⸓⌟⅂₧௹¨⣭  \u2028\u2029\u008C\u0011⁠\uA7E5" }
+
+      it { should keep(:Graph        ).from(word) }
+      it { should keep(:Punct        ).from(word) }
+      it { should keep(:Upper        ).from(word) }
+      it { should keep(:Word         ).from(word) }
+      it { should keep(:Latin        ).from(word) }
+      it { should keep(:L            ).from(word) }
+      it { should keep(:M            ).from(word) }
+      it { should keep(:N            ).from(word) }
+      it { should keep(:P            ).from(word) }
+      it { should keep(:S            ).from(word) }
+      it { should keep(:Z            ).from(word) }
+      it { should keep(:C            ).from(word) }
+      it { should keep(:Graph, :Punct).from(word) }
+      it { should keep(:Graph, :Upper).from(word) }
+      it { should keep(:Graph, :Word ).from(word) }
+      it { should keep(:Graph, :Latin).from(word) }
+      it { should keep(:Graph, :L    ).from(word) }
+      it { should keep(:Graph, :M    ).from(word) }
+      it { should keep(:Graph, :N    ).from(word) }
+      it { should keep(:Graph, :P    ).from(word) }
+      it { should keep(:Graph, :S    ).from(word) }
+      it { should keep(:Graph, :Z    ).from(word) }
+      it { should keep(:Graph, :C    ).from(word) }
+      it { should keep(:Punct, :Upper).from(word) }
+      it { should keep(:Punct, :Word ).from(word) }
+      it { should keep(:Punct, :Latin).from(word) }
+      it { should keep(:Punct, :L    ).from(word) }
+      it { should keep(:Punct, :M    ).from(word) }
+      it { should keep(:Punct, :N    ).from(word) }
+      it { should keep(:Punct, :P    ).from(word) }
+      it { should keep(:Punct, :S    ).from(word) }
+      it { should keep(:Punct, :Z    ).from(word) }
+      it { should keep(:Punct, :C    ).from(word) }
+      it { should keep(:Upper, :Word ).from(word) }
+      it { should keep(:Upper, :Latin).from(word) }
+      it { should keep(:Upper, :L    ).from(word) }
+      it { should keep(:Upper, :M    ).from(word) }
+      it { should keep(:Upper, :N    ).from(word) }
+      it { should keep(:Upper, :P    ).from(word) }
+      it { should keep(:Upper, :S    ).from(word) }
+      it { should keep(:Upper, :Z    ).from(word) }
+      it { should keep(:Upper, :C    ).from(word) }
+      it { should keep(:Word, :Latin ).from(word) }
+      it { should keep(:Word, :L     ).from(word) }
+      it { should keep(:Word, :M     ).from(word) }
+      it { should keep(:Word, :N     ).from(word) }
+      it { should keep(:Word, :P     ).from(word) }
+      it { should keep(:Word, :S     ).from(word) }
+      it { should keep(:Word, :Z     ).from(word) }
+      it { should keep(:Word, :C     ).from(word) }
+      it { should keep(:Latin, :L    ).from(word) }
+      it { should keep(:Latin, :M    ).from(word) }
+      it { should keep(:Latin, :N    ).from(word) }
+      it { should keep(:Latin, :P    ).from(word) }
+      it { should keep(:Latin, :S    ).from(word) }
+      it { should keep(:Latin, :Z    ).from(word) }
+      it { should keep(:Latin, :C    ).from(word) }
+      it { should keep(:L, :M        ).from(word) }
+      it { should keep(:L, :N        ).from(word) }
+      it { should keep(:L, :P        ).from(word) }
+      it { should keep(:L, :S        ).from(word) }
+      it { should keep(:L, :Z        ).from(word) }
+      it { should keep(:L, :C        ).from(word) }
+      it { should keep(:M, :N        ).from(word) }
+      it { should keep(:M, :P        ).from(word) }
+      it { should keep(:M, :S        ).from(word) }
+      it { should keep(:M, :Z        ).from(word) }
+      it { should keep(:M, :C        ).from(word) }
+      it { should keep(:N, :P        ).from(word) }
+      it { should keep(:N, :S        ).from(word) }
+      it { should keep(:N, :Z        ).from(word) }
+      it { should keep(:N, :C        ).from(word) }
+      it { should keep(:P, :S        ).from(word) }
+      it { should keep(:P, :Z        ).from(word) }
+      it { should keep(:P, :C        ).from(word) }
+      it { should keep(:S, :Z        ).from(word) }
+      it { should keep(:S, :C        ).from(word) }
+      it { should keep(:Z, :C        ).from(word) }
+      it { should evaluate(100       ).to(100   ) }
+      it { should evaluate(nil       ).to(nil   ) }
+    end
+  end
+end    
