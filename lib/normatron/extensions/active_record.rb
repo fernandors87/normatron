@@ -35,7 +35,6 @@ module Normatron
           end
 
           # Append new filters to rules
-          @normalize_rules ||= {}
           @normalize_rules =
           args.reduce(@normalize_rules) do |hash, att|
             filters = (@normalize_rules[att] || {}).merge(new_filters)
@@ -46,9 +45,11 @@ module Normatron
 
       module InstanceMethods
         def apply_normalizations
+          return unless self.class.normalize_rules
+          
           listed_filters = Normatron.configuration.filters
 
-          self.class.normalize_filters.each do |attribute, filters|
+          self.class.normalize_rules.each do |attribute, filters|
             value = send("#{attribute}_before_type_cast") || send(attribute)
 
             filters.each do |filter, args|
