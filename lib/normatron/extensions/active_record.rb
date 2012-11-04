@@ -34,6 +34,8 @@ module Normatron
             new_filters = Normatron.build_hash(options[:with])
           end
 
+          @normalize_rules ||= {}
+
           # Append new filters to rules
           @normalize_rules =
           args.reduce(@normalize_rules) do |hash, att|
@@ -56,7 +58,7 @@ module Normatron
               if self.respond_to? filter
                 value = send(filter, value, *args)
               elsif listed_filters[filter].kind_of? Module
-                value = listed_filters[filter].evaluate(value, *args)
+                value = listed_filters[filter].call(value, *args)
               elsif listed_filters[filter].kind_of? Proc
                 value = listed_filters[filter].call(value, *args)
               else

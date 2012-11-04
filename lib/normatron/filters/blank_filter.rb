@@ -5,11 +5,11 @@ module Normatron
     # Returns nil for a blank string or the string itself otherwise.
     # 
     # @example Out of box
-    #   BlankFilter.evaluate("")            #=> nil
-    #   BlankFilter.evaluate("     ")       #=> nil
-    #   BlankFilter.evaluate("  \n ")       #=> nil
-    #   BlankFilter.evaluate("1")           #=> "1"
-    #   BlankFilter.evaluate("It's blank?") #=> "It's blank?"
+    #   BlankFilter.call("")            #=> nil
+    #   BlankFilter.call("     ")       #=> nil
+    #   BlankFilter.call("  \n ")       #=> nil
+    #   BlankFilter.call("1")           #=> "1"
+    #   BlankFilter.call("It's blank?") #=> "It's blank?"
     #
     # @example Using as model normalizer
     #   normalize :attribute_a, :with => :blank
@@ -25,7 +25,7 @@ module Normatron
       #
       # @param  input [String] The String to be filtered
       # @return [String, nil] The object itself or nil
-      def self.evaluate(input)
+      def self.call(input)
         input.kind_of?(String) && input.blank? ? nil : input
       end
     end

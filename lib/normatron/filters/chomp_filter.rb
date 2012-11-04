@@ -7,11 +7,11 @@ module Normatron
     # characters (that is it will remove @\n@, @\r@, and @\r\n@).
     # 
     # @example Out of box
-    #   ChompFilter.evaluate("Bon Scott\n")         #=> "Bon Scott"
-    #   ChompFilter.evaluate("Bon Scott\r")         #=> "Bon Scott"
-    #   ChompFilter.evaluate("Bon Scott\r\n")       #=> "Bon Scott"
-    #   ChompFilter.evaluate("Bon Scott\n\r")       #=> "Bon Scott\n"
-    #   ChompFilter.evaluate("Bon Scott", " Scott") #=> "Bon"
+    #   ChompFilter.call("Bon Scott\n")         #=> "Bon Scott"
+    #   ChompFilter.call("Bon Scott\r")         #=> "Bon Scott"
+    #   ChompFilter.call("Bon Scott\r\n")       #=> "Bon Scott"
+    #   ChompFilter.call("Bon Scott\n\r")       #=> "Bon Scott\n"
+    #   ChompFilter.call("Bon Scott", " Scott") #=> "Bon"
     #
     # @example Using as model normalizer
     #   normalize :attribute_a, :with => :chomp
@@ -32,7 +32,7 @@ module Normatron
       # @param  input     [String] The String to be filtered
       # @param  separator [String] The separator used to chomp input
       # @return [String] A new chopped String
-      def self.evaluate(input, separator=$/)
+      def self.call(input, separator=$/)
         input.kind_of?(String) ? input.chomp(separator) : input
       end
     end

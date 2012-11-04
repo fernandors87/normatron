@@ -7,7 +7,7 @@ module Normatron
     # Replaces uppercased characters by lowercased and vice versa.
     # 
     # @example Out of box
-    #   SwapcaseFilter.evaluate("As you Wish!") #=> "aS YOU wISH!"
+    #   SwapcaseFilter.call("As you Wish!") #=> "aS YOU wISH!"
     #
     # @example Using as ActiveRecord::Base normalizer
     #   normalize :attribute_a, :with => :swapcase
@@ -27,7 +27,7 @@ module Normatron
       #
       # @param input [String] The String to be filtered
       # @return [String] A new swapcased String
-      def self.evaluate(input)
+      def self.call(input)
         return input unless input.kind_of?(String)
         input.gsub(/([\p{Ll}])|(\p{Lu})|([^\p{Ll}\p{Lu}])/u) { $3 || ($2 ? mb_send(:downcase, $2) : mb_send(:upcase, $1)) }
       end

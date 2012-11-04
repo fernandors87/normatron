@@ -7,7 +7,7 @@ module Normatron
     # Uppercase all characters.
     # 
     # @example Out of box
-    #   UpcaseFilter.evaluate("borderlands") #=> "BORDERLANDS"
+    #   UpcaseFilter.call("borderlands") #=> "BORDERLANDS"
     #
     # @example Using as ActiveRecord::Base normalizer
     #   normalize :attribute_a, :with => :upcase
@@ -27,7 +27,7 @@ module Normatron
       #
       # @param input [String] The String to be filtered
       # @return [String] A new uppercased String
-      def self.evaluate(input)
+      def self.call(input)
         input.kind_of?(String) ? mb_send(:upcase, input) : input
       end
     end

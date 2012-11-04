@@ -7,9 +7,9 @@ module Normatron
     # Makes the first character uppercase and all remaining characters lowercase.
     # 
     # @example Out of box
-    #   CapitalizeFilter.evaluate("KEEP IT SIMPLE")  #=> "Keep it simple"
-    #   CapitalizeFilter.evaluate("keep it simple")  #=> "Keep it simple"
-    #   CapitalizeFilter.evaluate(" KEEP IT SIMPLE") #=> " keep it simple"
+    #   CapitalizeFilter.call("KEEP IT SIMPLE")  #=> "Keep it simple"
+    #   CapitalizeFilter.call("keep it simple")  #=> "Keep it simple"
+    #   CapitalizeFilter.call(" KEEP IT SIMPLE") #=> " keep it simple"
     #
     # @example Using as model normalizer
     #   normalize :attribute_a, :with => :capitalize
@@ -27,7 +27,7 @@ module Normatron
       #
       # @param  input [String] The String to be filtered
       # @return [String] A new capitalized String
-      def self.evaluate(input)
+      def self.call(input)
         input.kind_of?(String) ? mb_send(:capitalize, input) : input
       end
     end

@@ -7,10 +7,10 @@ module Normatron
     # Removes traling and leading spaces.
     # 
     # @example Out of box
-    #   StripFilter.evaluate("   copy   ")      #=> "copy"
-    #   StripFilter.evaluate("   copy   ", :L)  #=> "copy   "
-    #   StripFilter.evaluate("   copy   ", :R)  #=> "   copy"
-    #   StripFilter.evaluate("   copy   ", :LR) #=> "copy"
+    #   StripFilter.call("   copy   ")      #=> "copy"
+    #   StripFilter.call("   copy   ", :L)  #=> "copy   "
+    #   StripFilter.call("   copy   ", :R)  #=> "   copy"
+    #   StripFilter.call("   copy   ", :LR) #=> "copy"
     #
     # @example Using as ActiveRecord::Base normalizer
     #   normalize :attribute_a, :with => :strip
@@ -33,7 +33,7 @@ module Normatron
       # @param input [String] The String to be filtered
       # @param edges [Symbol] @:L@ to strip trailing spaces, @:R@ for leading spaces or @:LR@ for both
       # @return [String] A new stripped String
-      def self.evaluate(input, edges=:LR)
+      def self.call(input, edges=:LR)
         return input unless input.kind_of?(String)
         
         regex_string = 

@@ -9,11 +9,11 @@ module Normatron
     # For additional informations see Normatron::Filter::ClassMethods#keep documentation.
     # 
     # @example Out of box
-    #   RemoveFilter.evaluate("Quake 3", :L)      #=> " 3"        remove only letters
-    #   RemoveFilter.evaluate("Quake 3", :N)      #=> "Quake "    remove only numbers
-    #   RemoveFilter.evaluate("Quake 3", :L, :N)  #=> " "         remove only letters or numbers
-    #   RemoveFilter.evaluate("Quake 3", :Lu, :N) #=> "uake "     remove only uppercased letters or numbers
-    #   RemoveFilter.evaluate("Quake ˩", :Latin)  #=> " ˩"        remove only latin characters
+    #   RemoveFilter.call("Quake 3", :L)      #=> " 3"        remove only letters
+    #   RemoveFilter.call("Quake 3", :N)      #=> "Quake "    remove only numbers
+    #   RemoveFilter.call("Quake 3", :L, :N)  #=> " "         remove only letters or numbers
+    #   RemoveFilter.call("Quake 3", :Lu, :N) #=> "uake "     remove only uppercased letters or numbers
+    #   RemoveFilter.call("Quake ˩", :Latin)  #=> " ˩"        remove only latin characters
     #
     # @example Using as ActiveRecord::Base normalizer
     #   normalize :attribute_a, :with => [[:remove, :Lu]]
@@ -34,7 +34,7 @@ module Normatron
       # @param input      [String]    The String to be filtered
       # @param properties [[Symbol]*] Symbols equivalent to Regexp property for @\\p{}@ construct
       # @return [String] A new clean String
-      def self.evaluate(input, *properties)
+      def self.call(input, *properties)
         input.kind_of?(String) ? evaluate_regexp(input, :remove, properties) : input
       end
     end

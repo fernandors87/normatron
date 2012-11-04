@@ -7,7 +7,7 @@ module Normatron
     # Lowercase all characters.
     # 
     # @example Out of box
-    #   DowncaseFilter.evaluate("NOTHING ELSE MATTERS") #=> "nothing else matters"
+    #   DowncaseFilter.call("NOTHING ELSE MATTERS") #=> "nothing else matters"
     #
     # @example Using as ActiveRecord::Base normalizer
     #   normalize :attribute_a, :with => :downcase
@@ -27,7 +27,7 @@ module Normatron
       #
       # @param input [String] The String to be filtered
       # @return [String] A new lowercased String
-      def self.evaluate(input)
+      def self.call(input)
         input.kind_of?(String) ? mb_send(:downcase, input) : input
       end
     end

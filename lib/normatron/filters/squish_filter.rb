@@ -7,10 +7,10 @@ module Normatron
     # Strip input, remove line-breaks and multiple spaces.
     # 
     # @example Out of box
-    #   SquishFilter.evaluate("   the simpsons   ") #=> "the simpsons"
-    #   SquishFilter.evaluate("family      guy")    #=> "family guy"
-    #   SquishFilter.evaluate("the \n simpsons")    #=> "the simpsons"
-    #   SquishFilter.evaluate("the\nsimpsons")      #=> "the simpsons"
+    #   SquishFilter.call("   the simpsons   ") #=> "the simpsons"
+    #   SquishFilter.call("family      guy")    #=> "family guy"
+    #   SquishFilter.call("the \n simpsons")    #=> "the simpsons"
+    #   SquishFilter.call("the\nsimpsons")      #=> "the simpsons"
     #
     # @example Using as ActiveRecord::Base normalizer
     #   normalize :attribute, :with => [:custom_filter, :squish]
@@ -27,7 +27,7 @@ module Normatron
       #
       # @param input [String] The String to be filtered
       # @return [String] A new squished String
-      def self.evaluate(input)
+      def self.call(input)
         input.kind_of?(String) ? input.squish : input
       end
     end

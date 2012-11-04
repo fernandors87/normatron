@@ -62,9 +62,9 @@ module FilterMatchers
 
     def get_evaluation
       if @args.nil?
-        @filter.evaluate(@input)
+        @filter.call(@input)
       else
-        @filter.evaluate(@input, *@args)
+        @filter.call(@input, *@args)
       end
     end
 

@@ -18,9 +18,9 @@ module Normatron
     # but it affects UTF-8 characters too.
     # 
     # @example Out of box
-    #   CamelizeFilter.evaluate("active_record/errors")         #=> "ActiveRecord::Errors"
-    #   CamelizeFilter.evaluate("active_record/errors", :upper) #=> "ActiveRecord::Errors"
-    #   CamelizeFilter.evaluate("active_record/errors", :lower) #=> "activeRecord::Errors"
+    #   CamelizeFilter.call("active_record/errors")         #=> "ActiveRecord::Errors"
+    #   CamelizeFilter.call("active_record/errors", :upper) #=> "ActiveRecord::Errors"
+    #   CamelizeFilter.call("active_record/errors", :lower) #=> "activeRecord::Errors"
     #
     # @example Using as model normalizer
     #   normalize :attribute_a, :with => :camelize
@@ -43,7 +43,7 @@ module Normatron
       # @param  input [String] The String to be filtered
       # @param  camel [Symbol] @:lower@ for lowerCamelCase or @:upper@ for UpperCamelCase
       # @return [String] A new camelized String
-      def self.evaluate(input, camel = :upper)
+      def self.call(input, camel = :upper)
         return input unless input.kind_of?(String)
 
         string = mb_send(:downcase, input)

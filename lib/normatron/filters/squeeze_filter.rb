@@ -7,9 +7,9 @@ module Normatron
     # If no option are given, all runs of identical characters are replaced by a single character.
     # 
     # @example Out of box
-    #   SqueezeFilter.evaluate("yellow    moon")             #=> "yelow mon"
-    #   SqueezeFilter.evaluate("  now   is  the", " ")       #=> " now is the"
-    #   SqueezeFilter.evaluate("putters shoot balls", "m-z") #=> "puters shot balls"
+    #   SqueezeFilter.call("yellow    moon")             #=> "yelow mon"
+    #   SqueezeFilter.call("  now   is  the", " ")       #=> " now is the"
+    #   SqueezeFilter.call("putters shoot balls", "m-z") #=> "puters shot balls"
     #
     # @example Using as ActiveRecord::Base normalizer
     #   normalize :attribute_a, :with => [:custom_filter, :squeeze]
@@ -29,7 +29,7 @@ module Normatron
       # @param input   [String]    The String to be filtered
       # @param targets [[String]*] Characters to be affected
       # @return [String] A new squeezed String
-      def self.evaluate(input, *targets)
+      def self.call(input, *targets)
         return input unless input.kind_of?(String)
         targets.any? ? input.squeeze(targets.last) : input.squeeze
       end

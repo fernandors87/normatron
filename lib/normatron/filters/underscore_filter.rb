@@ -14,7 +14,7 @@ module Normatron
     #   "SSLError".underscore.camelize # => "SslError"
     # 
     # @example Out of box
-    #   UnderscoreFilter.evaluate("ActiveRecord::Errors") #=> "active_record/errors"
+    #   UnderscoreFilter.call("ActiveRecord::Errors") #=> "active_record/errors"
     #
     # @example Using as ActiveRecord::Base normalizer
     #   normalize :attribute_a, :with => :underscore
@@ -36,7 +36,7 @@ module Normatron
       #
       # @param input [String] The String to be filtered
       # @return [String] A new underscored String
-      def self.evaluate(input)
+      def self.call(input)
         return input unless input.kind_of?(String)
 
         string = input.gsub(/::/, '/')

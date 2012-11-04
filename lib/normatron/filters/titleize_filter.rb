@@ -7,7 +7,7 @@ module Normatron
     # Capitalizes the first character of each word.
     # 
     # @example Out of box
-    #   TitleizeFilter.evaluate("at your will!") #=> "At Your Will!"
+    #   TitleizeFilter.call("at your will!") #=> "At Your Will!"
     #
     # @example Using as ActiveRecord::Base normalizer
     #   normalize :attribute_a, :with => :titleize
@@ -27,7 +27,7 @@ module Normatron
       #
       # @param input [String] The String to be filtered
       # @return [String] A new titleized String
-      def self.evaluate(input)
+      def self.call(input)
         input.kind_of?(String) ? mb_send(:titleize, input) : input
       end
     end

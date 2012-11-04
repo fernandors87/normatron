@@ -6,10 +6,10 @@ module Normatron
     # special characters escaped.
     # 
     # @example Out of box
-    #   DumpFilter.evaluate("I'm not\na \"clubber\"...") #=> "\"I'm not\\na \\\"clubber\\\"...\""
-    #   DumpFilter.evaluate("I'm not\na \"clubber\"...") #== '"I\'m not\na \"clubber\"..."'
-    #   DumpFilter.evaluate('I\'m not\na "clubber"...')  #=> "\"I'm not\\\\na \\\"clubber\\\"...\""
-    #   DumpFilter.evaluate('I\'m not\na "clubber"...')  #== '"I\'m not\\\na \"clubber\"..."'
+    #   DumpFilter.call("I'm not\na \"clubber\"...") #=> "\"I'm not\\na \\\"clubber\\\"...\""
+    #   DumpFilter.call("I'm not\na \"clubber\"...") #== '"I\'m not\na \"clubber\"..."'
+    #   DumpFilter.call('I\'m not\na "clubber"...')  #=> "\"I'm not\\\\na \\\"clubber\\\"...\""
+    #   DumpFilter.call('I\'m not\na "clubber"...')  #== '"I\'m not\\\na \"clubber\"..."'
     #
     # @example Using as ActiveRecord::Base normalizer
     #   normalize :attribute_a, :with => :dump
@@ -25,7 +25,7 @@ module Normatron
       #
       # @param input [String] The String to be filtered
       # @return [String] A new dumpped String
-      def self.evaluate(input)
+      def self.call(input)
         input.kind_of?(String) ? input.dump : input
       end
     end

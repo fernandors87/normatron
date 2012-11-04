@@ -7,7 +7,7 @@ module Normatron
     # Replaces all underscores with dashes.
     # 
     # @example Out of box
-    #   DasherizeFilter.evaluate("monty_python") #=> "monty-python"
+    #   DasherizeFilter.call("monty_python") #=> "monty-python"
     #
     # @example Using as model normalizer
     #   normalize :attribute_a, :with => :dasherize
@@ -23,7 +23,7 @@ module Normatron
       #
       # @param  input [String] The String to be filtered
       # @return [String] A new dasherized String
-      def self.evaluate(input)
+      def self.call(input)
         input.kind_of?(String) ? input.dasherize : input
       end
     end

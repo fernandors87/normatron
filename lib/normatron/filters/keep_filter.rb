@@ -84,11 +84,11 @@ module Normatron
     # Thai, Tibetan, Tifinagh, Ugaritic, Vai, and Yi.
     # 
     # @example Out of box
-    #   KeepFilter.evaluate("Doom 3", :L)      #=> "Doom"    keep only letters
-    #   KeepFilter.evaluate("Doom 3", :N)      #=> "3"       keep only numbers
-    #   KeepFilter.evaluate("Doom 3", :L, :N)  #=> "Doom3"   keep only letters and numbers
-    #   KeepFilter.evaluate("Doom 3", :Lu, :N) #=> "D3"      keep only uppercased letters or numbers
-    #   KeepFilter.evaluate("Doom ˩", :Latin)  #=> "Doom"    keep only latin characters
+    #   KeepFilter.call("Doom 3", :L)      #=> "Doom"    keep only letters
+    #   KeepFilter.call("Doom 3", :N)      #=> "3"       keep only numbers
+    #   KeepFilter.call("Doom 3", :L, :N)  #=> "Doom3"   keep only letters and numbers
+    #   KeepFilter.call("Doom 3", :Lu, :N) #=> "D3"      keep only uppercased letters or numbers
+    #   KeepFilter.call("Doom ˩", :Latin)  #=> "Doom"    keep only latin characters
     #
     # @example Using as ActiveRecord::Base normalizer
     #   normalize :attribute_a, :with => [[:keep, :Lu]]
@@ -109,7 +109,7 @@ module Normatron
       # @param input      [String]    The String to be filtered
       # @param properties [[Symbol]*] Symbols equivalent to Regexp property for @\\p{}@ construct
       # @return [String] A new clean String
-      def self.evaluate(input, *properties)
+      def self.call(input, *properties)
         input.kind_of?(String) ? evaluate_regexp(input, :keep, properties) : input
       end
     end

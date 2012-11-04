@@ -210,8 +210,8 @@ To apply the normalizations without doing validations or persistence, just call 
 
 Create a new module with the following characteristics:
 
-* Having a module method called evaluate
-* The evaluate method must receive at least one argument
+* Having a module method called `call`
+* The `call` method must receive at least one argument
 * The first argument must be the value to be filtered
 
 Here is an example:
@@ -220,7 +220,7 @@ Here is an example:
 # ./lib/my_filters/emoticon_filter.rb
 module MyFilters
   module EmoticonFilter
-    def self.evaluate(value, type)
+    def self.call(value, type)
       emot = (type == :sad) ? ":(" : ":D"
       value + emot
     end

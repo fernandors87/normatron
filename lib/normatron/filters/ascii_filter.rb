@@ -7,8 +7,8 @@ module Normatron
     # Converts Unicode(and accented ASCII) characters to their plain-text ASCII equivalents.
     # 
     # @example Out of box
-    #   AsciiFilter.evaluate("EVOLUÇÃO")  #=> "EVOLUCAO"
-    #   AsciiFilter.evaluate("⠋⠗⠁⠝⠉⠑")  #=> "france"
+    #   AsciiFilter.call("EVOLUÇÃO")  #=> "EVOLUCAO"
+    #   AsciiFilter.call("⠋⠗⠁⠝⠉⠑")  #=> "france"
     #
     # @example Using as model normalizer
     #   normalize :attribute_a, :with => :ascii
@@ -24,7 +24,7 @@ module Normatron
       #
       # @param  input [String] The String to be filtered
       # @return [String] A new transliterated String
-      def self.evaluate(input)
+      def self.call(input)
         input.kind_of?(String) ? Stringex::Unidecoder.decode(input) : input
       end
     end

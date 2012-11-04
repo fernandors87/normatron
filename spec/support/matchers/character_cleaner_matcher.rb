@@ -23,7 +23,7 @@ module FilterMatchers
     def matches?(subject)
       @subject = subject
       @expected = @options[:input].gsub(regexp, '')
-      @got = @subject.evaluate(@options[:input], @options[:properties])
+      @got = @subject.call(@options[:input], @options[:properties])
       @failure_reason = failure_reason
       @failure_reason.nil?
     end
